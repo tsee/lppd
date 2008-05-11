@@ -1,0 +1,43 @@
+INCDIR=include
+LIBDIR=lib
+BINDIR=bin
+
+LDFLAGS += -ggdb -ljpeg -fPIC -lX11
+CXXFLAGS += -ggdb -fPIC -Isrc
+CXXFLAGS += -pg
+#CXXFLAGS += -O3
+
+SOURCES=$(wildcard src/*.cc)
+HEADERS=$(wildcard src/*.h))
+OBJECTS=$(patsubst %.cc, %.o, $(SOURCES))
+#OBJECTS+=$(patsubst %ROOT.h, %Dict.o, $(wildcard */*ROOT.h))
+
+OBJNAME=$(patsubst %.cc, %.o, $(wildcard src/*.cc))
+
+all: $(OBJNAME) bin 
+#shared
+
+.cc.o:
+	$(CXX) -o $@ -c $^ $(CXXFLAGS)
+
+#shared: $(OBJNAME)
+#	g++ $(LDFLAGS) -ggdb -shared -Wl,-soname,libFindLaser.so -o libFindLaser.so  $(OBJECTS)
+
+nonbin: $(OBJNAME)
+#shared
+
+bin: nonbin findLaser findLaserCapture
+
+findLaser: nonbin
+	$(CXX) $(CXXFLAGS) findLaser.cc -o findLaser src/myimages.o $(LDFLAGS) 
+#-L. -lFindLaser
+
+findLaserCapture: nonbin
+	$(CXX) $(CXXFLAGS) findLaserCapture.cc -o findLaserCapture $(OBJECTS) $(LDFLAGS)
+#-L. -lFindLaser
+
+clean:
+	@rm -f $(OBJNAME) *~ core *.o src/*.o
+
+realclean:
+	@rm -f $(OBJNAME) *~ core *.o *.so src/*.o src/*.so findLaser findLaserCapture
