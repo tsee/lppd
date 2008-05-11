@@ -4,7 +4,7 @@ BINDIR=bin
 
 LDFLAGS += -ggdb -ljpeg -fPIC $(shell sdl-config --libs) -lSDL_image -lSDL_gfx -lX11 -lSDL_ttf
 #LDFLAGS += -L../imageproc -lFindLaser 
-CXXFLAGS += -ggdb -fPIC $(shell sdl-config --cflags) -I../imageproc/src
+CXXFLAGS += -ggdb -fPIC $(shell sdl-config --cflags) -Isrc
 #CXXFLAGS += -pg
 CXXFLAGS += -O3
 
@@ -25,7 +25,7 @@ nonbin: $(OBJNAME)
 bin: nonbin sdl
 
 sdl: nonbin
-	$(CXX) $(CXXFLAGS) sdl.cc ../imageproc/src/*.o -o sdl $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) sdl.cc src/*.o -o sdl $(LDFLAGS)
 
 clean:
 	@rm -f $(OBJNAME) *~ core *.o *.so 
