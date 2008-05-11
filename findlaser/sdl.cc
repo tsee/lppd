@@ -164,7 +164,7 @@ int main()
     printf("TTF_Init: %s\n", TTF_GetError());
     exit(2);
   }
-  TTF_Font* font = TTF_OpenFont("Vera.ttf", 16);
+  TTF_Font* font = TTF_OpenFont("res/fonts/Vera.ttf", 16);
   SDL_Color fontBgColor={0,0,0}, fontColor={0xff,0xff,0xff};
   SDL_Surface* textSurface = NULL;
 
@@ -195,7 +195,7 @@ int main()
   SDL_RWops *rw = NULL;
 
   // Load SDL cursor 
-  cursor = IMG_Load("cursor.png");
+  cursor = IMG_Load("res/images/cursor.png");
   if (cursor == NULL) {
     fprintf(stderr, "Das Bild konnte nicht geladen werden:%s\n",
         SDL_GetError());
