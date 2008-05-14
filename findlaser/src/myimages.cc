@@ -50,13 +50,16 @@ my_error_exit (j_common_ptr cinfo)
 }
 
 
-int read_JPEG_file (char* filename, vector<unsigned char*>& img, int& samples)
+int read_JPEG_file (char* filename, unsigned char*& img, int& samples, int& columns, int& rows)
 {
   /* This struct contains the JPEG decompression parameters and pointers to
    * working space (which is allocated as needed by the JPEG library).
    */
-  img.clear();
+  if (!(img == NULL)) delete img;
+
   samples = 0;
+  columns = 0;
+  rows = 0;
 
   struct jpeg_decompress_struct cinfo;
   /* We use our private extension JPEG error handler.
@@ -131,17 +134,26 @@ int read_JPEG_file (char* filename, vector<unsigned char*>& img, int& samples)
    */ 
   /* JSAMPLEs per row in output buffer */
   //row_stride = cinfo.output_width * cinfo.output_components;
-  samples = cinfo.output_width * cinfo.output_components;
+  columns = cinfo.output_width;
+  samples = cinfo.output_components;
+  rows    = cinfo.output_height;
+
+  const int rowsize = samples*columns;
+  
+  img = (unsigned char*) malloc(cinfo.output_height * samples * columns * sizeof(unsigned char));
+
   /* Make a one-row-high sample array that will go away when done with image */
   buffer = (*cinfo.mem->alloc_sarray)
-		((j_common_ptr) &cinfo, JPOOL_IMAGE, samples, 1);
+		((j_common_ptr) &cinfo, JPOOL_IMAGE, rowsize, 1);
 
   /* Step 6: while (scan lines remain to be read) */
   /*           jpeg_read_scanlines(...); */
 
+  
   /* Here we use the library's state variable cinfo.output_scanline as the
    * loop counter, so that we don't have to keep track ourselves.
    */
+  unsigned int lineNo = 0;
   while (cinfo.output_scanline < cinfo.output_height) {
     /* jpeg_read_scanlines expects an array of pointers to scanlines.
      * Here the array is only one element long, but you could ask for
@@ -150,12 +162,10 @@ int read_JPEG_file (char* filename, vector<unsigned char*>& img, int& samples)
     (void) jpeg_read_scanlines(&cinfo, buffer, 1);
     /* Assume put_scanline_someplace wants a pointer and sample count. */
 //    put_scanline_someplace(buffer[0], row_stride);
-    unsigned char* line = (unsigned char*) malloc(samples * sizeof(unsigned char));
     unsigned char* templine = buffer[0];
-    for (unsigned int i = 0; i < samples; i++)
-      line[i] = templine[i];
-
-    img.push_back(line);
+    const unsigned int endOfRow = lineNo*rowsize + rowsize;
+    for (unsigned int i = lineNo*rowsize; i < endOfRow; i++)
+      img[i] = templine[i];
   }
 
   /* Step 7: Finish decompression */
@@ -191,8 +201,8 @@ int read_JPEG_file (char* filename, vector<unsigned char*>& img, int& samples)
  **********************************************/
 
 void write_JPEG_file (
-  char * filename, int quality, int image_height, int image_width,
-  const vector<unsigned char*>& image, int samples
+  char * filename, const int quality, const int image_height, const int image_width,
+  unsigned char* image, int samples
 )
 {
   /* This struct contains the JPEG compression parameters and pointers to
@@ -287,7 +297,7 @@ void write_JPEG_file (
      * Here the array is only one element long, but you could pass
      * more than one scanline at a time if that's more convenient.
      */
-    row_pointer[0] = image[cinfo.next_scanline];
+    row_pointer[0] = &image[cinfo.next_scanline];
     (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
   }
 
@@ -315,7 +325,7 @@ void write_JPEG_file (
  * Image class
  */
 
-Image::Image() : fColumns(0) {
+Image::Image() : fColumns(0), fImage(0), fRows(0) {
 }
 
 Image::~Image() {
@@ -323,18 +333,21 @@ Image::~Image() {
 }
 
 void Image::ClearImage () {
-  for (unsigned int i = 0; i < fImage.size(); i++)
-    free(fImage[i]);
-  fImage.clear();
-  fColumns = 0;
+  unsigned char* img = GetImage();
+  if (img != NULL)
+    delete img;
+  img = NULL;
+  SetImage(img);
+  SetColumns(0);
+  SetRows(0);
 }
 
 unsigned char* Image::AsPNM(unsigned int& datasize) {
   unsigned char* pnm;
-  vector<unsigned char*>& img = GetImage();
-  unsigned int cols = GetColumns();
-  unsigned int samples = GetSamples();
-  unsigned int rows = GetRows();
+  const unsigned char* img = GetImage();
+  const unsigned int cols = GetColumns();
+  const unsigned int samples = GetSamples();
+  const unsigned int rows = GetRows();
 
   char header[100];
   if (samples == 3) {
@@ -343,7 +356,7 @@ unsigned char* Image::AsPNM(unsigned int& datasize) {
   else {
     sprintf(header, "P5\n%u %u\n255\n", GetColumns(), GetRows());
   }
-  unsigned int headerlength = strlen(header);
+  const unsigned int headerlength = strlen(header);
 
   const unsigned int rowsize = cols*samples;
   const unsigned int size = rowsize*rows * sizeof(unsigned char);
@@ -352,11 +365,7 @@ unsigned char* Image::AsPNM(unsigned int& datasize) {
   strcpy((char*)pnm, header);
 
   unsigned char* ptr = pnm+headerlength;
-  for (unsigned int i = 0; i < rows; i++) {
-    unsigned char* row = img[i];
-    memcpy(ptr, row, rowsize);
-    ptr += rowsize;
-  }
+  memcpy(ptr, img, size);
 
   datasize = size + headerlength*sizeof(char);
   return pnm;
@@ -372,64 +381,70 @@ ColorImage::~ColorImage() {}
 
 
 bool ColorImage::ReverseCopyFromMemory (unsigned int width, unsigned int height, unsigned char* ptr) {
-  ClearImage();
   if (ptr == NULL) return false;
-  fColumns = width;
-  vector<unsigned char*>& img = GetImage();
-  img.resize(height);
-  const unsigned int rowsize = width * 3 * sizeof(unsigned char);
+  ClearImage();
+  SetColumns(width);
+  SetRows(height);
+  unsigned char* img = GetImage();
 
-  for (unsigned int i = 0; i < height; i++) {
-    unsigned char* newline = (unsigned char*) malloc(rowsize);
-    //memcpy(newline, ptr, rowsize);
-    for (unsigned int j = 0; j < rowsize; j+=3) {
-      newline[j]   = ptr[j+2];
-      newline[j+1] = ptr[j+1];
-      newline[j+2] = ptr[j];
-    }
-    ptr += rowsize;
-    img[i] = newline;
+  const unsigned int rowsize = width * GetSamples() * sizeof(unsigned char);
+  const unsigned int size = height * rowsize;
+  img = (unsigned char*) malloc(size);
+
+  cout << width << " " << height << " " << GetSamples() << endl;
+
+  for (unsigned int i = 0; i < size; i+=3) {
+    img[i]   = ptr[i+2];
+    img[i+1] = ptr[i+1];
+    img[i+2] = ptr[i];
   }
 
+  SetImage(img);
   return true;
 }
 
 bool ColorImage::ReadFromFile (const string filename) {
   ClearImage();
-  int totalsamples;
-  int result = read_JPEG_file((char*)filename.c_str(), fImage, totalsamples);
+  int samples, columns, rows;
+  unsigned char* img = GetImage();
+  int result = read_JPEG_file((char*)filename.c_str(), img, samples, columns, rows);
   if (result == 0) {
     ClearImage();
     return false;
   }
-  fColumns = totalsamples / GetSamples();
+  SetImage(img);
+  SetRows(rows);
+  SetColumns(columns);
   return true;
 }
 
 
 GreyImage* ColorImage::ColorProjection(const Color& color) {
   GreyImage* grey = new GreyImage();
-  vector<unsigned char*>& greyData = grey->GetImage();
-  vector<unsigned char*>& colorData = GetImage();
+  unsigned char* greyData = grey->GetImage();
+  unsigned char* colorData = GetImage();
 
   double projRed   = color.red / 255.;
   double projGreen = color.green / 255.;
   double projBlue  = color.blue / 255.;
 
   int cols = GetColumns();
-  int rows = colorData.size();
-  greyData.resize( rows );
-  for (unsigned int r = 0; r < rows; r++) {
-    unsigned char* newline = (unsigned char*) malloc(cols * sizeof(unsigned char));
-    unsigned char* colorline = colorData[r];
-    for (unsigned int c = 0; c < cols; c++) {
-      newline[c] = (unsigned char) (   projRed * colorline[c*3+0]
-                                     + projGreen * colorline[c*3+1]
-                                     + projBlue * colorline[c*3+2]  );
-    }
-    greyData[r] = newline;
+  int rows = GetRows();
+  const unsigned int greySize = cols*rows*1*sizeof(unsigned char);
+  const unsigned int colorSize = greySize*GetSamples();
+
+  greyData = (unsigned char*) malloc(greySize);
+
+  for (unsigned int i = 0; i < greySize; i++) {
+    const unsigned int ci = i * 3;
+    greyData[i] = (unsigned char) (   projRed * colorData[ci+0]
+                                     + projGreen * colorData[ci+1]
+                                     + projBlue * colorData[ci+2]  );
   }
+
   grey->SetColumns(cols);
+  grey->SetRows(rows);
+  grey->SetImage(greyData);
 
   return grey;
 }
@@ -442,21 +457,24 @@ inline GreyImage* ColorImage::BlueProjection()  { return FixedColorProjection(2)
 
 GreyImage* ColorImage::FixedColorProjection(unsigned int colorOffset) {
   GreyImage* grey = new GreyImage();
-  vector<unsigned char*>& greyData = grey->GetImage();
-  vector<unsigned char*>& colorData = GetImage();
+  unsigned char* greyData = grey->GetImage();
+  unsigned char* colorData = GetImage();
 
   int cols = GetColumns();
-  int rows = colorData.size();
-  greyData.resize( rows );
-  for (unsigned int r = 0; r < rows; r++) {
-    unsigned char* newline = (unsigned char*) malloc(cols * sizeof(unsigned char));
-    unsigned char* colorline = colorData[r];
-    for (unsigned int c = 0; c < cols; c++) {
-      newline[c] =  colorline[c*3 + colorOffset];
-    }
-    greyData[r] = newline;
+  int rows = GetRows();
+
+  const unsigned int greySize = cols*rows*1*sizeof(unsigned char);
+  const unsigned int colorSize = greySize*GetSamples();
+  greyData = (unsigned char*) malloc(greySize);
+
+  for (unsigned int i = 0; i < greySize; i++) {
+    const unsigned int ci = i * 3;
+    greyData[i] =  colorData[ci + colorOffset];
   }
+
   grey->SetColumns(cols);
+  grey->SetRows(rows);
+  grey->SetImage(greyData);
 
   return grey;
 }
@@ -464,8 +482,8 @@ GreyImage* ColorImage::FixedColorProjection(unsigned int colorOffset) {
 
 GreyImage* ColorImage::NormalizedColorProjection(const Color& color, const unsigned char colorThreshold, const unsigned char colorDefault) {
   GreyImage* grey = new GreyImage();
-  vector<unsigned char*>& greyData = grey->GetImage();
-  vector<unsigned char*>& colorData = GetImage();
+  unsigned char* greyData = grey->GetImage();
+  unsigned char* colorData = GetImage();
 
   const double projRed   = color.red / 255.;
   const double projGreen = color.green / 255.;
@@ -478,27 +496,31 @@ GreyImage* ColorImage::NormalizedColorProjection(const Color& color, const unsig
   const double normProjBlue = projBlue/projLen;
 
   int cols = GetColumns();
-  int rows = colorData.size();
-  greyData.resize( rows );
-  for (unsigned int r = 0; r < rows; r++) {
-    unsigned char* newline = (unsigned char*) malloc(cols * sizeof(unsigned char));
-    unsigned char* colorline = colorData[r];
-    for (unsigned int c = 0; c < cols; c++) {
-      const unsigned int r = colorline[c*3+0];
-      const unsigned int g = colorline[c*3+1];
-      const unsigned int b = colorline[c*3+2];
+  int rows = GetRows();
+
+  const unsigned int greySize = cols*rows*1*sizeof(unsigned char);
+  const unsigned int colorSize = greySize*GetSamples();
+
+  greyData = (unsigned char*) malloc(greySize);
+
+  for (unsigned int i = 0; i < greySize; i++) {
+    const unsigned int ci = i * 3;
+    const unsigned int r = colorData[ci+0];
+    const unsigned int g = colorData[ci+1];
+    const unsigned int b = colorData[ci+2];
+
+    const double colorLength = pow((double)(r*r+g*g+b*b), 0.5);
       
-      const double colorLength = pow((double)(r*r+g*g+b*b), 0.5);
-      
-      newline[c] = (unsigned char) ( 255 * (   normProjRed   * r / colorLength
-                                             + normProjGreen * g / colorLength
-                                             + normProjBlue  * b / colorLength ) );
-      if (newline[c] < colorThreshold)
-        newline[c] = colorDefault;
-    }
-    greyData[r] = newline;
+    greyData[i] = (unsigned char) ( 255 * (  normProjRed   * r / colorLength
+                                           + normProjGreen * g / colorLength
+                                           + normProjBlue  * b / colorLength ) );
+    if (greyData[i] < colorThreshold)
+      greyData[i] = colorDefault;
   }
+
   grey->SetColumns(cols);
+  grey->SetRows(rows);
+  grey->SetImage(greyData);
 
   return grey;
 }
@@ -506,27 +528,30 @@ GreyImage* ColorImage::NormalizedColorProjection(const Color& color, const unsig
 
 GreyImage* ColorImage::ToGreyscale(const unsigned char brightnessThreshold, const unsigned char brightnessDefault) {
   GreyImage* grey = new GreyImage();
-  vector<unsigned char*>& greyData = grey->GetImage();
-  vector<unsigned char*>& colorData = GetImage();
+  unsigned char* greyData = grey->GetImage();
+  unsigned char* colorData = GetImage();
 
   const int cols = GetColumns();
-  const int rows = colorData.size();
-  greyData.resize( rows );
-  for (unsigned int r = 0; r < rows; r++) {
-    unsigned char* newline = (unsigned char*) malloc(cols * sizeof(unsigned char));
-    const unsigned char* colorline = colorData[r];
-    for (unsigned int c = 0; c < cols; c++) {
-      const unsigned int r = colorline[c*3+0];
-      const unsigned int g = colorline[c*3+1];
-      const unsigned int b = colorline[c*3+2];
-      
-      newline[c] = (unsigned char) (0.301*(float)r + 0.586*(float)g + 0.113*(float)b);
-      if (newline[c] < brightnessThreshold)
-        newline[c] = brightnessDefault; 
-    }
-    greyData[r] = newline;
+  const int rows = GetRows();
+
+  const unsigned int greySize = cols*rows*1*sizeof(unsigned char);
+  const unsigned int colorSize = greySize*GetSamples();
+
+  greyData = (unsigned char*) malloc(greySize);
+
+  for (unsigned int i = 0; i < greySize; i++) {
+    const unsigned int ci = i * 3;
+    const unsigned int r = colorData[ci+0];
+    const unsigned int g = colorData[ci+1];
+    const unsigned int b = colorData[ci+2];
+    greyData[i] = (unsigned char) (0.301*(float)r + 0.586*(float)g + 0.113*(float)b);
+    if (greyData[i] < brightnessThreshold)
+      greyData[i] = brightnessDefault; 
   }
+
   grey->SetColumns(cols);
+  grey->SetRows(rows);
+  grey->SetImage(greyData);
 
   return grey;
 }
@@ -545,7 +570,7 @@ void ColorImage::FindLaserCentroid(
   centroidx = -1.;
   centroidy = -1.;
 
-  vector<unsigned char*>& colorData = GetImage();
+  unsigned char* colorData = GetImage();
 
   const float projRed   = color.red / 255.;
   const float projGreen = color.green / 255.;
@@ -559,19 +584,22 @@ void ColorImage::FindLaserCentroid(
 
   const unsigned int lightThresholdSquared = (unsigned int) lightThreshold * (unsigned int) lightThreshold;
 
-  int cols = GetColumns();
-  int rows = colorData.size();
+  const int cols = GetColumns();
+  const int rows = GetRows();
+
+  const unsigned int rowSize = cols*GetSamples();
 
   float cx = 0, cy = 0;
   float cw = 0;
 
   for (unsigned int row = 0; row < rows; row++) {
-    unsigned char* colorline = colorData[row];
+    const unsigned int firstOnRow = row*rowSize;
+
     for (unsigned int c = 0; c < cols; c++) {
-      const unsigned int firstIndex = c*3;
-      const unsigned int r = colorline[firstIndex+0];
-      const unsigned int g = colorline[firstIndex+1];
-      const unsigned int b = colorline[firstIndex+2];
+      const unsigned int firstIndex = firstOnRow + c*3;
+      const unsigned int r = colorData[firstIndex+0];
+      const unsigned int g = colorData[firstIndex+1];
+      const unsigned int b = colorData[firstIndex+2];
       
       const unsigned int colsquares = r*r+g*g+b*b;
 //      const float grey = (1./3.)*(float)(r+g+b);
@@ -614,26 +642,27 @@ void GreyImage::SaveAsJPEG(std::string filename, int quality) {
 
 GreyImage* GreyImage::CutOnThreshold(unsigned char threshold, unsigned char replacement) {
   
-  const vector<unsigned char*>& oldimg = GetImage();
+  const unsigned char* oldimg = GetImage();
   unsigned int rows = GetRows();
   unsigned int cols = GetColumns();
 
+  const unsigned int size = cols*rows*1*sizeof(unsigned char);
+
   GreyImage* grey = new GreyImage();
-  vector<unsigned char*>& newimg = grey->GetImage();
-  newimg.resize(rows);
+  unsigned char* newimg = grey->GetImage();
+  newimg = (unsigned char*) malloc(size);
+
   grey->SetColumns(cols);
+  grey->SetRows(rows);
 
-  for (unsigned int r = 0; r < rows; r++) {
-    const unsigned char* row = oldimg[r];
-    newimg[r] = (unsigned char*) malloc(cols * sizeof(unsigned char));
-    unsigned char* newrow = newimg[r];    
-
-    for (unsigned int c = 0; c < cols; c++) {
-      const unsigned char val = row[c];
-      if (val < threshold) newrow[c] = replacement;
-      else newrow[c] = val;
-    }
+  for (unsigned int i = 0; i < size; i++) {
+    const unsigned char val = newimg[i];
+    if (val < threshold) newimg[i] = replacement;
+    else newimg[i] = val;
   }
+
+  grey->SetImage(newimg);
+
   return grey;
 }
 

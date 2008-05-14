@@ -20,7 +20,7 @@ int main (int argc, char**  argv) {
 
   ColorImage img;
   img.ReadFromFile(file);
-  cerr << "Rows: " << img.GetImage().size() << " Cols: " << img.GetColumns() << endl;
+  cerr << "Rows: " << img.GetRows() << " Cols: " << img.GetColumns() << endl;
 
   Color red(255,0,0);
   Color green(0,255,0);

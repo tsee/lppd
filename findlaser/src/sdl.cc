@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 
 #include <stdlib.h>
@@ -34,6 +35,70 @@ inline std::string stringify(int x)
   return o.str();
 }
 
+void readConfig(
+  const std::string& fileName, int& camBrightness,
+  int& camContrast, double& colorThreshold,
+  double& brightnessThreshold)
+{
+  //set defaults
+  camBrightness       = 32000;
+  camContrast         = 32000;
+  brightnessThreshold = 120;
+  colorThreshold      = 120;
+
+  ifstream fileHandle;
+  fileHandle.open(fileName.c_str());
+  if ( !fileHandle.is_open() ) {
+    cerr << " Could not read configuration file "
+         << fileName << endl;
+    return;
+  }
+
+  string value;
+
+  if (!fileHandle.good()) return;
+  fileHandle >> value;
+  camBrightness = atoi(value.c_str());
+
+  if (!fileHandle.good()) return;
+  fileHandle >> value;
+  camContrast = atoi(value.c_str());
+
+  if (!fileHandle.good()) return;
+  fileHandle >> value;
+  brightnessThreshold = atof(value.c_str());
+
+  if (!fileHandle.good()) return;
+  fileHandle >> value;
+  colorThreshold = atof(value.c_str());
+
+  return;
+}
+
+void writeConfig(
+  const std::string& fileName, const int& camBrightness,
+  const int& camContrast, const double& colorThreshold,
+  const double& brightnessThreshold)
+{
+  ofstream fileHandle;
+  fileHandle.open(fileName.c_str());
+  if ( !fileHandle.is_open() ) {
+    cerr << " Could not open configuration file "
+         << fileName << " for writing." <<endl;
+    return;
+  }
+
+  string value;
+
+  fileHandle << camBrightness << "\n";
+  fileHandle << camContrast   << "\n";
+  fileHandle << brightnessThreshold << "\n";
+  fileHandle << colorThreshold << endl;
+
+  return;
+}
+
+
 int main()
 {
 
@@ -66,6 +131,18 @@ int main()
   const int cameraContrastMax = 65536;
   const int cameraContrastMin = 0;
 
+  // spot finding thresholds
+  double thresholdColor = 120;
+  const double thresholdColorMin = 0;
+  const double thresholdColorMax = 255;
+
+  double thresholdLight = 220;
+  const double thresholdLightMin = 0;
+  const double thresholdLightMax = 255;
+
+  const string confFile = "settings.txt";
+  readConfig(confFile, cameraBrightness, cameraContrast, thresholdColor, thresholdLight);
+
   cap.SetCaptureProperties(cameraBrightness, cameraContrast);
 
   // Color objects for color projection
@@ -88,7 +165,7 @@ int main()
     printf("TTF_Init: %s\n", TTF_GetError());
     exit(2);
   }
-  TTF_Font* font = TTF_OpenFont("Vera.ttf", 16);
+  TTF_Font* font = TTF_OpenFont("res/fonts/Vera.ttf", 16);
   SDL_Color fontBgColor={0,0,0}, fontColor={0xff,0xff,0xff};
   SDL_Surface* textSurface = NULL;
 
@@ -99,7 +176,9 @@ int main()
   SDL_Surface *display;
 
   // display depth 0 means current depth
-  display = SDL_SetVideoMode( screenSizeX, screenSizeY, 0, SDL_SWSURFACE|SDL_FULLSCREEN );
+  display = SDL_SetVideoMode( imageSX, imageSY, 0, SDL_SWSURFACE );
+  //display = SDL_SetVideoMode( screenSizeX, screenSizeY, 0, SDL_SWSURFACE|SDL_FULLSCREEN );
+
   //display = SDL_SetVideoMode( 800, 600, 24, SDL_SWSURFACE);
 //  display = SDL_SetVideoMode( 800, 600, 16, SDL_SWSURFACE|SDL_FULLSCREEN );
   //display = SDL_SetVideoMode( 800, 600, 16, SDL_SWSURFACE );
@@ -117,7 +196,7 @@ int main()
   SDL_RWops *rw = NULL;
 
   // Load SDL cursor 
-  cursor = IMG_Load("cursor.png");
+  cursor = IMG_Load("res/images/cursor.png");
   if (cursor == NULL) {
     fprintf(stderr, "Das Bild konnte nicht geladen werden:%s\n",
         SDL_GetError());
@@ -153,21 +232,16 @@ int main()
   SDL_Event event;
   int running = 1;
 
-  // spot finding thresholds
-  double thresholdColor = 120;
-  const double thresholdColorMin = 0;
-  const double thresholdColorMax = 255;
-
-  double thresholdLight = 220;
-  const double thresholdLightMin = 0;
-  const double thresholdLightMax = 255;
-
   // init position averaging 
   double sLastCX = 0.;
   double sLastCY = 0.;
   double lastCX = 0.;
   double lastCY = 0.;
   unsigned int frame = 0;
+
+  // other global state
+  bool capture = true;
+  bool continuedCapture = false;
 
   // text display
   string displayText  = "";
@@ -182,6 +256,9 @@ int main()
   // 2 = color projection
   // 3 = brightness projection
   int displayMode = 1;
+
+  // global image storage
+  ColorImage* captureImage = new ColorImage();
 
   while(running) {
     while(SDL_PollEvent(&event)) {
@@ -220,6 +297,12 @@ int main()
             break;
            case SDLK_g:
             lastkey = SDLK_g;
+            break;
+           case SDLK_c:
+            lastkey = SDLK_c;
+            break;
+           case SDLK_v:
+            lastkey = SDLK_v;
             break;
            case SDLK_1:
             displayMode = 1;
@@ -299,30 +382,41 @@ int main()
           cap.SetContrast(cameraContrast);
           displayText = string("Camera Contrast: ") + stringify(cameraContrast) + string(" / ") + stringify(cameraContrastMax);
           break;
+        case SDLK_c:
+          capture = true;
+          break;
+        case SDLK_v:
+          if (continuedCapture == true) {
+            continuedCapture = false;
+          }
+          else
+            continuedCapture = true;
+          break;
       }
       if (keyaccel < 5) keyaccel++;
     } // end we have a key
 
-    unsigned int size = 0;
-    unsigned char* imgptr = cap.CaptureImagePointer(size);
+    if (capture || continuedCapture) {
+      capture = false;
+      unsigned int size = 0;
+      unsigned char* imgptr = cap.CaptureImagePointer(size);
+      captureImage->ReverseCopyFromMemory(imageSX, imageSY, imgptr);
+    }
 
-    ColorImage img;
-    img.ReverseCopyFromMemory(imageSX, imageSY, imgptr);
-
-    //GreyImage normRedProj = *img.NormalizedColorProjection(red);
-    //GreyImage light = *img.ToGreyscale();
+    //GreyImage normRedProj = *captureImage->NormalizedColorProjection(red);
+    //GreyImage light = *captureImage->ToGreyscale();
     unsigned int pnmsize;
     unsigned char* pnmptr;
     if (displayMode == 1) {
-      pnmptr = img.AsPNM(pnmsize);
+      pnmptr = captureImage->AsPNM(pnmsize);
     }
     else if (displayMode == 2) {
-      GreyImage* colorProj = img.NormalizedColorProjection(red, (unsigned char)thresholdColor, 1);
+      GreyImage* colorProj = captureImage->NormalizedColorProjection(red, (unsigned char)thresholdColor, 1);
       pnmptr = colorProj->AsPNM(pnmsize);
       delete colorProj;
     }
     else if (displayMode == 3) {
-      GreyImage* grey = img.ToGreyscale((unsigned char)thresholdLight, 1);
+      GreyImage* grey = captureImage->ToGreyscale((unsigned char)thresholdLight, 1);
       pnmptr = grey->AsPNM(pnmsize);
       delete grey;
     }
@@ -332,7 +426,7 @@ int main()
       sdlimage = NULL;
     }
     rw = SDL_RWFromMem(pnmptr, pnmsize);
-    sdlimage = IMG_LoadTyped_RW(rw, 0, "PNM");
+    sdlimage = IMG_LoadTyped_RW(rw, 0, (char*)"PNM");
     SDL_FreeRW(rw);
     free(pnmptr);
     pnmptr = NULL;
@@ -343,9 +437,8 @@ int main()
       exit(-1);
     }
 
-  
     double cx = 0, cy = 0;
-    img.FindLaserCentroid(
+    captureImage->FindLaserCentroid(
       cx, cy, red, thresholdColor, thresholdLight    
       //cx, cy, red, thresholdColor, thresholdLight    
     );
@@ -362,10 +455,10 @@ int main()
     SDL_BlitSurface(rescaledSdlImage, &imgSourceRect, display, &imgDestRect);
 
     if (cx >= 0) {
-      double relCX = cx / img.GetColumns();
-      double relCY = cy / img.GetRows();
-      //double relCX = (0.5*cx+0.3*lastCX+0.2*sLastCX) / img.GetColumns();
-      //double relCY = (0.5*cy+0.3*lastCY+0.2*sLastCX) / img.GetRows();
+      double relCX = cx / captureImage->GetColumns();
+      double relCY = cy / captureImage->GetRows();
+      //double relCX = (0.5*cx+0.3*lastCX+0.2*sLastCX) / captureImage->GetColumns();
+      //double relCY = (0.5*cy+0.3*lastCY+0.2*sLastCX) / captureImage->GetRows();
       sLastCX = lastCX;
       sLastCY = lastCY;
       lastCX = cx;
@@ -424,4 +517,5 @@ int main()
   font = NULL;
   TTF_Quit();
   SDL_Quit();
+  writeConfig(confFile, cameraBrightness, cameraContrast, thresholdColor, thresholdLight);
 }

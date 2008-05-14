@@ -12,22 +12,30 @@ namespace FindLaser {
       Image();
       virtual ~Image();
 
-      bool IsEmpty() { return fImage.empty(); }
+      bool IsEmpty() { return (fColumns == 0 ? true : false); }
       void ClearImage();
-      std::vector<unsigned char*>& GetImage() { return fImage; }
+      unsigned char* GetImage() { return fImage; }
       virtual int GetSamples() { return 0; }
+
       int GetColumns() { return fColumns; }
       void SetColumns(int cols) { fColumns = cols; }
-      int GetRows() { return fImage.size(); }
+      int GetRows() { return fRows; }
+      void SetRows(int rows) { fRows = rows; }
+
       virtual void SaveAsJPEG(std::string filename, int quality) {}
       unsigned char* AsPNM(unsigned int& datasize);
 
     protected:
-      std::vector<unsigned char*> fImage;
+      void SetImage(unsigned char* img) { fImage = img; }
+
+    private:
+      unsigned char* fImage;
       int fColumns;
+      int fRows;
   };
 
   class ColorImage : public Image {
+    friend class GreyImage;
     public:
       ColorImage();
       virtual ~ColorImage();
@@ -61,6 +69,7 @@ namespace FindLaser {
   };
 
   class GreyImage : public Image {
+    friend class ColorImage;
     public:
       GreyImage();
       virtual ~GreyImage();
