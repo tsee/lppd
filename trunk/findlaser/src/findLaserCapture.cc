@@ -1,5 +1,6 @@
 #include "myimages.h"
 #include "v4lcapture.h"
+#include "settings.h"
 
 #include <string>
 #include <vector>
@@ -14,10 +15,13 @@ using namespace FindLaser;
 using namespace std;
 
 int main (int argc, char**  argv) {
+  
+  const string confFile = "settings.txt";
+  Configuration cfg(confFile);
 
-  unsigned int imageSX = 320, imageSY = 240;
+  unsigned int imageSX = cfg.GetCameraImageSizeX(), imageSY = cfg.GetCameraImageSizeY();
 
-  ImageCapture cap("/dev/video0");
+  ImageCapture cap(cfg.GetCameraDevice());
 
   if (!cap.Initialize()) {
     cerr << cap.GetError() << endl;
@@ -34,7 +38,8 @@ int main (int argc, char**  argv) {
   }
   */
 
-  cap.SetBrightness(10000);
+  cap.SetBrightness(cfg.GetCameraBrightness());
+  cap.SetContrast(cfg.GetCameraContrast());
 
   Color red(255,0,0);
   Color green(0,255,0);
@@ -59,8 +64,8 @@ int main (int argc, char**  argv) {
     //GreyImage light = *img.ToGreyscale();
   
     double cx = 0, cy = 0;
-    double thresholdColor = 120;
-    double thresholdLight = 220;
+    const double thresholdColor = cfg.GetColorThreshold();
+    const double thresholdLight = cfg.GetBrightnessThreshold();
     img.FindLaserCentroid(
       cx, cy, red, thresholdColor, thresholdLight    
     );

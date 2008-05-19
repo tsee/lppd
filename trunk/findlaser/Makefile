@@ -30,13 +30,13 @@ bin: nonbin $(EXE)
 #sdl
 
 $(BIN_DIR)/sdl: nonbin
-	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/sdl.o $(OBJ_DIR)/myimages.o $(OBJ_DIR)/v4lcapture.o -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/sdl.o $(OBJ_DIR)/myimages.o $(OBJ_DIR)/v4lcapture.o $(OBJ_DIR)/settings.o -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/findLaser: nonbin
-	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/findLaser.o $(OBJ_DIR)/myimages.o $(OBJ_DIR)/v4lcapture.o -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/findLaser.o $(OBJ_DIR)/myimages.o $(OBJ_DIR)/v4lcapture.o $(OBJ_DIR)/settings.o -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/findLaserCapture: nonbin
-	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/findLaserCapture.o $(OBJ_DIR)/myimages.o $(OBJ_DIR)/v4lcapture.o -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/findLaserCapture.o $(OBJ_DIR)/myimages.o $(OBJ_DIR)/v4lcapture.o $(OBJ_DIR)/settings.o -o $@ $(LDFLAGS)
 
 clean:
 	@rm -f $(OBJECTS) *~ core *.o *.so $(OBJ_DIR)/*.o
