@@ -20,7 +20,7 @@ using std::endl;
 #include <linux/videodev.h>
 namespace FindLaser {
   ImageCapture::ImageCapture(string device)
-    : fDevice(device), fError(""), fInitialized(false), fFd(-1), fBuffer(NULL)
+    : fDevice(device), fError(""), fInitialized(false), fFd(-1), fBuffer(NULL), fVerbosity(0)
   {
   }
 
@@ -95,6 +95,9 @@ namespace FindLaser {
   }
 
   bool ImageCapture::SetVideoPicture() {
+    if (fVerbosity)
+      cout << "Setting video picture..." << endl;
+
     if (ioctl(fFd, VIDIOCSPICT, &fVPicture) < 0) {
       fError = "Could not set video picture struct via VIDIOCSPICT.";
       return false;
@@ -108,6 +111,10 @@ namespace FindLaser {
       fError = "Could not allocate memory for image buffer: Out of memory!";
       return false;
     }
+
+    if (fVerbosity)
+      cout << "Successfully set video picture." << endl;
+
     return true;
   }
 

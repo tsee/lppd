@@ -7,7 +7,8 @@ namespace FindLaser {
     public:
       ImageCapture(std::string device);
       ~ImageCapture();
-
+      
+      void SetVerbosity(const unsigned int verb) { fVerbosity = verb; }
       bool Initialize();
 
       std::string GetError();
@@ -26,6 +27,7 @@ namespace FindLaser {
       unsigned char* CaptureImagePointer(unsigned int& size);
 
     private:
+
       bool GetCapability();
       bool GetWindow();
       bool SetWindow();
@@ -33,6 +35,7 @@ namespace FindLaser {
       bool SetVideoPicture();
       int GetBrightnessAdjustment(unsigned char* image, long size, int* brightness);
 
+      unsigned int fVerbosity;
       std::string fDevice;
       std::string fError;
       bool fInitialized;
