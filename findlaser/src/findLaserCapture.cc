@@ -19,9 +19,10 @@ int main (int argc, char**  argv) {
   const string confFile = "settings.txt";
   Configuration cfg(confFile);
 
-  unsigned int imageSX = cfg.GetCameraImageSizeX(), imageSY = cfg.GetCameraImageSizeY();
+  const unsigned int imageSX = cfg.GetCameraImageSizeX(), imageSY = cfg.GetCameraImageSizeY();
 
   ImageCapture cap(cfg.GetCameraDevice());
+  cap.SetVerbosity(1);
 
   if (!cap.Initialize()) {
     cerr << cap.GetError() << endl;
@@ -38,8 +39,13 @@ int main (int argc, char**  argv) {
   }
   */
 
-  cap.SetBrightness(cfg.GetCameraBrightness());
-  cap.SetContrast(cfg.GetCameraContrast());
+  cap.SetCaptureProperties(cfg.GetCameraBrightness(), cfg.GetCameraContrast());
+  cout << "Brightness:           " << cap.GetBrightness()    << endl;
+  cout << "Contrast:             " << cap.GetContrast()    << endl;
+  const double thresholdLight = cfg.GetBrightnessThreshold();
+  const double thresholdColor = cfg.GetColorThreshold();
+  cout << "Brightness threshold: " << thresholdLight    << endl;
+  cout << "Color threshold:      " << thresholdColor    << endl;
 
   Color red(255,0,0);
   Color green(0,255,0);
@@ -52,31 +58,36 @@ int main (int argc, char**  argv) {
   double lastCX = 0.;
   double lastCY = 0.;
   unsigned int frame = 0;
+  ColorImage img;
   while (1) {
     unsigned int size = 0;
     unsigned char* imgptr = cap.CaptureImagePointer(size);
 
-    ColorImage img;
-    img.ReverseCopyFromMemory(imageSX, imageSY, imgptr);
-    //img.SaveAsJPEG("out.jpg", 100);
+/*    ColorImage img2;
+    img2.ReverseCopyFromMemory(imageSX, imageSY, imgptr);
+    unsigned int size2 = 0;
+    unsigned char* ppmdata = img2.AsPNM(size2);
+    char buffer[1024];
+    sprintf(buffer, "foo_%u.pnm", frame);
+    FILE *fp = fopen(buffer, "wb");
+    fwrite(ppmdata, size2, 1, fp);
+    fclose(fp);
+    //img2.SaveAsJPEG("foo.jpg",100);
+*/
 
-    //GreyImage normRedProj = *img.NormalizedColorProjection(red);
-    //GreyImage light = *img.ToGreyscale();
-  
     double cx = 0, cy = 0;
-    const double thresholdColor = cfg.GetColorThreshold();
-    const double thresholdLight = cfg.GetBrightnessThreshold();
-    img.FindLaserCentroid(
-      cx, cy, red, thresholdColor, thresholdLight    
+    img.PtrFindLaserCentroid(
+      imgptr, imageSX, imageSY, true, cx, cy, red, thresholdColor, thresholdLight
     );
+
 //    if ( pow(lastCX-cx,2)+pow(lastCY-cy,2)
   
     frame++;
     cerr << frame;
 
     if (cx >= 0) {
-      double relCX = (0.5*cx+0.3*lastCX+0.2*sLastCX) / img.GetColumns();
-      double relCY = (0.5*cy+0.3*lastCY+0.2*sLastCX) / img.GetRows();
+      double relCX = (0.5*cx+0.3*lastCX+0.2*sLastCX) / imageSX;
+      double relCY = (0.5*cy+0.3*lastCY+0.2*sLastCX) / imageSY;
       sLastCX = lastCX;
       sLastCY = lastCY;
       lastCX = cx;
