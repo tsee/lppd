@@ -62,6 +62,13 @@ namespace FindLaser {
         const double colorThreshold, const double lightThreshold
       );
 
+      void PtrFindLaserCentroid(
+        const unsigned char* ptr, const unsigned int width, const unsigned int height,
+        bool reverse,
+        double& centroidx, double& centroidy, const Color& color, 
+        const double colorThreshold, const double lightThreshold
+      );
+
       void SaveAsJPEG(std::string filename, int quality);
 
     private:
