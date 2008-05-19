@@ -18,7 +18,7 @@ namespace FindLaser {
   }
 
   void History::AddPoint(const HistoryPoint histPoint) {
-    fPoints.push_back(histPoint);
+    fPoints.push(histPoint);
   }
 
   void History::DiscardOldPoints() {
