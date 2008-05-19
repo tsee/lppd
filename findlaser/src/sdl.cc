@@ -13,10 +13,11 @@
 #include <SDL_keyboard.h>
 #include "SDL_ttf.h"
 
+#include <X11/Xlib.h>
+
 #include "myimages.h"
 #include "v4lcapture.h"
-
-#include <X11/Xlib.h>
+#include "settings.h"
 
 using namespace std;
 using namespace FindLaser;
@@ -35,77 +36,16 @@ inline std::string stringify(int x)
   return o.str();
 }
 
-void readConfig(
-  const std::string& fileName, int& camBrightness,
-  int& camContrast, double& colorThreshold,
-  double& brightnessThreshold)
-{
-  //set defaults
-  camBrightness       = 32000;
-  camContrast         = 32000;
-  brightnessThreshold = 120;
-  colorThreshold      = 120;
-
-  ifstream fileHandle;
-  fileHandle.open(fileName.c_str());
-  if ( !fileHandle.is_open() ) {
-    cerr << " Could not read configuration file "
-         << fileName << endl;
-    return;
-  }
-
-  string value;
-
-  if (!fileHandle.good()) return;
-  fileHandle >> value;
-  camBrightness = atoi(value.c_str());
-
-  if (!fileHandle.good()) return;
-  fileHandle >> value;
-  camContrast = atoi(value.c_str());
-
-  if (!fileHandle.good()) return;
-  fileHandle >> value;
-  brightnessThreshold = atof(value.c_str());
-
-  if (!fileHandle.good()) return;
-  fileHandle >> value;
-  colorThreshold = atof(value.c_str());
-
-  return;
-}
-
-void writeConfig(
-  const std::string& fileName, const int& camBrightness,
-  const int& camContrast, const double& colorThreshold,
-  const double& brightnessThreshold)
-{
-  ofstream fileHandle;
-  fileHandle.open(fileName.c_str());
-  if ( !fileHandle.is_open() ) {
-    cerr << " Could not open configuration file "
-         << fileName << " for writing." <<endl;
-    return;
-  }
-
-  string value;
-
-  fileHandle << camBrightness << "\n";
-  fileHandle << camContrast   << "\n";
-  fileHandle << brightnessThreshold << "\n";
-  fileHandle << colorThreshold << endl;
-
-  return;
-}
-
 
 int main()
 {
 
+  const string confFile = "settings.txt";
+  Configuration cfg(confFile);
+
   // Initialize webcam image capturing
-  //const unsigned int imageSX = 640, imageSY = 480;
-  const unsigned int imageSX = 320, imageSY = 240;
-  ImageCapture cap("/dev/video0");
+  const unsigned int imageSX = cfg.GetCameraImageSizeX(), imageSY = cfg.GetCameraImageSizeY();
+  ImageCapture cap(cfg.GetCameraDevice().c_str());
 
   if (!cap.Initialize()) {
     cerr << cap.GetError() << endl;
@@ -123,25 +63,23 @@ int main()
   */
 
   // Camera settings
-  int cameraBrightness = cap.GetBrightness();
+  //int cameraBrightness = cap.GetBrightness();
+  int cameraBrightness = cfg.GetCameraBrightness();
   const int cameraBrightnessMax = 65536;
   const int cameraBrightnessMin = 0;
 
-  int cameraContrast = cap.GetContrast();
+  int cameraContrast = cfg.GetCameraContrast();
   const int cameraContrastMax = 65536;
   const int cameraContrastMin = 0;
 
   // spot finding thresholds
-  double thresholdColor = 120;
+  double thresholdColor = cfg.GetColorThreshold();
   const double thresholdColorMin = 0;
   const double thresholdColorMax = 255;
 
-  double thresholdLight = 220;
+  double thresholdLight = cfg.GetBrightnessThreshold();
   const double thresholdLightMin = 0;
   const double thresholdLightMax = 255;
-
-  const string confFile = "settings.txt";
-  readConfig(confFile, cameraBrightness, cameraContrast, thresholdColor, thresholdLight);
 
   cap.SetCaptureProperties(cameraBrightness, cameraContrast);
 
@@ -176,8 +114,8 @@ int main()
   SDL_Surface *display;
 
   // display depth 0 means current depth
-  display = SDL_SetVideoMode( imageSX, imageSY, 0, SDL_SWSURFACE );
-  //display = SDL_SetVideoMode( screenSizeX, screenSizeY, 0, SDL_SWSURFACE|SDL_FULLSCREEN );
+  //display = SDL_SetVideoMode( imageSX, imageSY, 0, SDL_SWSURFACE );
+  display = SDL_SetVideoMode( screenSizeX, screenSizeY, 0, SDL_SWSURFACE|SDL_FULLSCREEN );
 
   //display = SDL_SetVideoMode( 800, 600, 24, SDL_SWSURFACE);
 //  display = SDL_SetVideoMode( 800, 600, 16, SDL_SWSURFACE|SDL_FULLSCREEN );
@@ -517,5 +455,10 @@ int main()
   font = NULL;
   TTF_Quit();
   SDL_Quit();
-  writeConfig(confFile, cameraBrightness, cameraContrast, thresholdColor, thresholdLight);
+
+  cfg.SetCameraBrightness(cameraBrightness);
+  cfg.SetCameraContrast(cameraContrast);
+  cfg.SetColorThreshold(thresholdColor);
+  cfg.SetBrightnessThreshold(thresholdLight);
+  cfg.WriteConfiguration();
 }
