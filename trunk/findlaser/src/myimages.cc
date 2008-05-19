@@ -624,6 +624,68 @@ void ColorImage::FindLaserCentroid(
   }
 }
 
+void ColorImage::PtrFindLaserCentroid(
+  const unsigned char* ptr,  const unsigned int width, const unsigned int height,
+  bool reverse,
+  double& centroidx, double& centroidy, const Color& color, 
+  const double colorThreshold, const double lightThreshold
+) {
+  centroidx = -1.;
+  centroidy = -1.;
+
+  const float projRed   = color.red / 255.;
+  const float projGreen = color.green / 255.;
+  const float projBlue  = color.blue / 255.;
+  
+  const float projLen = pow( projRed*projRed + projGreen*projGreen + projBlue*projBlue, 0.5 );
+
+  const float normProjRed = projRed/projLen*255;
+  const float normProjGreen = projGreen/projLen*255;
+  const float normProjBlue = projBlue/projLen*255;
+
+  const unsigned int lightThresholdSquared = (unsigned int) lightThreshold * (unsigned int) lightThreshold;
+
+  const unsigned int rowSize = width*GetSamples();
+
+  float cx = 0, cy = 0;
+  float cw = 0;
+
+  const unsigned int redOffset   = (reverse ? 2 : 0);
+  const unsigned int greenOffset = 1;
+  const unsigned int blueOffset  = (reverse ? 0 : 2);
+
+  for (unsigned int row = 0; row < height; row++) {
+    const unsigned int firstOnRow = row*rowSize;
+
+    for (unsigned int c = 0; c < width; c++) {
+      const unsigned int firstIndex = firstOnRow + c*3;
+      const unsigned int r = ptr[firstIndex+redOffset];
+      const unsigned int g = ptr[firstIndex+greenOffset];
+      const unsigned int b = ptr[firstIndex+blueOffset];
+      
+      const unsigned int colsquares = r*r+g*g+b*b;
+//      const float grey = (1./3.)*(float)(r+g+b);
+      if (colsquares/3 > lightThresholdSquared) {
+        const float colorLength = pow((float)(colsquares), 0.5);
+        const float colorProjection =  (   normProjRed   * r / colorLength
+                                         + normProjGreen * g / colorLength
+                                         + normProjBlue  * b / colorLength );
+        if (colorProjection >= colorThreshold) {
+          const float w = colorProjection*colorProjection;
+          cw += w;
+          cx += w*c;
+          cy += w*row;
+        }
+      }
+    } // end for cols
+  } // end for rows 
+
+  if (cw > 0) {
+    centroidx = cx / cw;
+    centroidy = cy / cw;
+  }
+}
+
 
 /************************
  * The GreyImage class
