@@ -1,3 +1,6 @@
+#ifndef __FindLaser__Configuration_h
+#define __FindLaser__Configuration_h
+
 #include <string>
 
 namespace FindLaser {
@@ -44,4 +47,4 @@ namespace FindLaser {
 
 } // end namespace FindLaser
 
-
+#endif
