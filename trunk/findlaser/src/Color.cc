@@ -1,3 +1,5 @@
+#include "Color.h"
+
 namespace FindLaser {
  // I know, public... but this is just a struct!
   class Color {
