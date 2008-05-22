@@ -1,7 +1,6 @@
-- Make settings.h a more proper class
-- Make sure all headers have the necessary #ifndef __H...
 - Finish design of History
 - Implement History
+
 - Design SDL-display wrapper class
 - Implement SDL-display wrapper class
 
@@ -14,4 +13,5 @@
 --> trapezoidal correction
 
 - Find out how to best send keyboard events
+- Find out how to best send mouse clicks
 
