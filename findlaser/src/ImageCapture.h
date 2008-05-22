@@ -1,3 +1,5 @@
+#ifndef __FindLaser__ImageCapture_h
+#define __FindLaser__ImageCapture_h
 
 #include <string>
 #include <linux/videodev.h>
@@ -47,3 +49,5 @@ namespace FindLaser {
       unsigned char* fBuffer;
   };
 }
+
+#endif
