@@ -2,7 +2,8 @@ INCDIR=include
 LIBDIR=lib
 BINDIR=bin
 
-LDFLAGS += -ggdb -ljpeg -fPIC $(shell sdl-config --libs) -lSDL_image -lSDL_gfx -lX11 -lSDL_ttf
+LDFLAGS += -ggdb -ljpeg -fPIC -lstdc++ -lX11
+SDL_LDFLAGS= -lSDL_image -lSDL_gfx -lSDL_ttf $(shell sdl-config --libs) 
 CXXFLAGS += -ggdb -fPIC $(shell sdl-config --cflags) -Isrc
 #CXXFLAGS += -pg
 CXXFLAGS += -O3
@@ -19,6 +20,12 @@ OBJECTS=$(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(SOURCES))
 EXEBASE=sdl findLaser findLaserCapture
 EXE=$(patsubst %,$(BIN_DIR)/%, $(EXEBASE))
 
+IMAGE_OBJECTS_BASE=/Color /Image /jpegstuff /GreyImage /ColorImage
+IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, $(IMAGE_OBJECTS_BASE))
+
+COMMON_OBJECTS_BASE=/settings /history /v4lcapture
+COMMON_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, $(COMMON_OBJECTS_BASE))
+
 all: $(OBJECTS) bin
 
 $(OBJ_DIR)/%.o: $(SOURCES)
@@ -27,16 +34,15 @@ $(OBJ_DIR)/%.o: $(SOURCES)
 nonbin: $(OBJECTS)
 
 bin: nonbin $(EXE)
-#sdl
 
 $(BIN_DIR)/sdl: nonbin
-	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/sdl.o $(OBJ_DIR)/myimages.o $(OBJ_DIR)/v4lcapture.o $(OBJ_DIR)/settings.o -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/sdl.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
 
 $(BIN_DIR)/findLaser: nonbin
-	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/findLaser.o $(OBJ_DIR)/myimages.o $(OBJ_DIR)/v4lcapture.o $(OBJ_DIR)/settings.o -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/findLaser.o -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/findLaserCapture: nonbin
-	$(CXX) $(CXXFLAGS) $(OBJ_DIR)/findLaserCapture.o $(OBJ_DIR)/myimages.o $(OBJ_DIR)/v4lcapture.o $(OBJ_DIR)/settings.o -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/findLaserCapture.o -o $@ $(LDFLAGS)
 
 clean:
 	@rm -f $(OBJECTS) *~ core *.o *.so $(OBJ_DIR)/*.o
