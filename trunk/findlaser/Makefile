@@ -20,11 +20,11 @@ OBJECTS=$(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(SOURCES))
 EXEBASE=sdl findLaser findLaserCapture
 EXE=$(patsubst %,$(BIN_DIR)/%, $(EXEBASE))
 
-IMAGE_OBJECTS_BASE=/Color /Image /jpegstuff /GreyImage /ColorImage
-IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, $(IMAGE_OBJECTS_BASE))
+IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,   /Color /Image /jpegstuff /GreyImage /ColorImage)
 
-COMMON_OBJECTS_BASE=/Configuration /history /ImageCapture
-COMMON_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, $(COMMON_OBJECTS_BASE))
+HISTORY_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, /HistoryPoint /History)
+
+COMMON_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,  /Configuration /ImageCapture) $(HISTORY_OBJECTS)
 
 all: $(OBJECTS) bin
 
