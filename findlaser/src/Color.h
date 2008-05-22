@@ -1,12 +1,20 @@
-Color::Color(unsigned char r, unsigned char g, unsigned char b) : red(r), green(g), blue(b) {
-}
- 
-Color Color::GetNormalized() {
-  float scale = 255. / pow((float) (red*red+green*green+blue*blue), 0.5);
-  float r = (float)red   * scale;
-  float g = (float)green * scale;
-  float b = (float)blue  * scale;
-  Color col((unsigned char)r, (unsigned char)g, (unsigned char)b);
-  return col;
-}
+#ifndef __FindLaser__Color_h
+#define __FindLaser__Color_h
 
+namespace FindLaser {
+ // I know, public... but this is just a struct!
+  class Color {
+    public:
+    Color(unsigned char r, unsigned char g, unsigned char b);
+
+    ~Color() {}
+
+    Color GetNormalized();
+
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+  }; // end class Color
+} // end namespace FindLaser
+
+#endif
