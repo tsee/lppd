@@ -15,7 +15,11 @@
 
 #include <X11/Xlib.h>
 
-#include "myimages.h"
+#include "Color.h"
+#include "Image.h"
+#include "ColorImage.h"
+#include "GreyImage.h"
+
 #include "v4lcapture.h"
 #include "settings.h"
 
