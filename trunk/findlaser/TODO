@@ -1,12 +1,8 @@
-- Finish design of History
-- Implement History
-
 - Design SDL-display wrapper class
 - Implement SDL-display wrapper class
 
-- Design & implement gestures
---> on/off
---> movement/directions
+- Design & implement general calibration class
+--> using the SDL-display wrapper class for displaying user feedback
 
 - Design & implement geometric calibration
 --> picture size selection
@@ -14,4 +10,15 @@
 
 - Find out how to best send keyboard events
 - Find out how to best send mouse clicks
+- Write abstraction for sending mouse and keyboard events
+--> key press/release
+--> mouse press/release
+--> mouse cursor movement
+
+- Finish design of History
+- Implement History
+
+- Design & implement gestures
+--> on/off
+--> movement/directions
 
