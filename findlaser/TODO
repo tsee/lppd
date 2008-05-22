@@ -1,0 +1,17 @@
+- Make settings.h a more proper class
+- Make sure all headers have the necessary #ifndef __H...
+- Finish design of History
+- Implement History
+- Design SDL-display wrapper class
+- Implement SDL-display wrapper class
+
+- Design & implement gestures
+--> on/off
+--> movement/directions
+
+- Design & implement geometric calibration
+--> picture size selection
+--> trapezoidal correction
+
+- Find out how to best send keyboard events
+
