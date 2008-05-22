@@ -20,8 +20,8 @@
 #include "ColorImage.h"
 #include "GreyImage.h"
 
-#include "v4lcapture.h"
-#include "settings.h"
+#include "ImageCapture.h"
+#include "Configuration.h"
 
 using namespace std;
 using namespace FindLaser;
