@@ -1,4 +1,8 @@
-#include "myimages.h"
+#include "Color.h"
+#include "Image.h"
+#include "ColorImage.h"
+#include "GreyImage.h"
+
 #include <string>
 #include <vector>
 #include <iostream>
