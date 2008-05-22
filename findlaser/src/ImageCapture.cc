@@ -1,4 +1,4 @@
-#include "v4lcapture.h"
+#include "ImageCapture.h"
 
 #include <string>
 #include <iostream>
