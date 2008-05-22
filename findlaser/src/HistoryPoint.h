@@ -1,4 +1,6 @@
-#include <queue>
+#ifndef __FindLaser__HistoryPoint_h
+#define __FindLaser__HistoryPoint_h
+
 #include <ctime>
 
 namespace FindLaser {
@@ -20,23 +22,6 @@ namespace FindLaser {
       double fY;
   }; // end class HistoryPoint
 
-  class History {
-    public:
-      History ();
-
-      void AddPoint(const HistoryPoint histPoint);
-
-      void DiscardOldPoints();
-
-      void SetMemoryLength(const double seconds) { fMemoryLength = seconds/CLOCKS_PER_SEC; }
-      double GetMemoryLength() { return fMemoryLength; }
-
-    private:
-      double fMemoryLength;
-      std::queue<HistoryPoint> fPoints;
-      
-  }; // end class History
-
 } // end namespace FindLaser
 
-
+#endif
