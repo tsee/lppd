@@ -23,7 +23,7 @@ EXE=$(patsubst %,$(BIN_DIR)/%, $(EXEBASE))
 IMAGE_OBJECTS_BASE=/Color /Image /jpegstuff /GreyImage /ColorImage
 IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, $(IMAGE_OBJECTS_BASE))
 
-COMMON_OBJECTS_BASE=/Configuration /history /v4lcapture
+COMMON_OBJECTS_BASE=/Configuration /history /ImageCapture
 COMMON_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, $(COMMON_OBJECTS_BASE))
 
 all: $(OBJECTS) bin
