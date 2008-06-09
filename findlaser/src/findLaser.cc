@@ -60,10 +60,10 @@ int main (int argc, char**  argv) {
   redCut.SaveAsJPEG("redCut.jpg", 100);
   
   unsigned int size = 0;
-  unsigned char* ppmdata = redCut.AsPNM(size);
-  FILE *fp = fopen("redCut.pnm", "wb");
-  fwrite(ppmdata, size, 1, fp);
-  fclose(fp);
+  //unsigned char* ppmdata = redCut.AsPNM(size);
+  //FILE *fp = fopen("redCut.pnm", "wb");
+  //fwrite(ppmdata, size, 1, fp);
+  //fclose(fp);
 
   
   return(0);

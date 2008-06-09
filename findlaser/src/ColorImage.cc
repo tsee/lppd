@@ -133,11 +133,15 @@ namespace FindLaser {
     const double projGreen = color.green / 255.;
     const double projBlue  = color.blue / 255.;
     
-    const double projLen = pow( projRed*projRed + projGreen*projGreen + projBlue*projBlue, 0.5 );
+    const double invProjLen = InvSqrt((float)(projRed*projRed + projGreen*projGreen + projBlue*projBlue));
+    //const double projLen = pow( projRed*projRed + projGreen*projGreen + projBlue*projBlue, 0.5 );
 
-    const double normProjRed = projRed/projLen;
-    const double normProjGreen = projGreen/projLen;
-    const double normProjBlue = projBlue/projLen;
+    //const double normProjRed = projRed/projLen;
+    //const double normProjGreen = projGreen/projLen;
+    //const double normProjBlue = projBlue/projLen;
+    const double normProjRed = projRed*invProjLen;
+    const double normProjGreen = projGreen*invProjLen;
+    const double normProjBlue = projBlue*invProjLen;
 
     int cols = GetColumns();
     int rows = GetRows();
@@ -153,11 +157,15 @@ namespace FindLaser {
       const unsigned int g = colorData[ci+1];
       const unsigned int b = colorData[ci+2];
 
-      const double colorLength = pow((double)(r*r+g*g+b*b), 0.5);
+      const double invColorLength = InvSqrt((float)(r*r+g*g+b*b));
+      //const double colorLength = pow((double)(r*r+g*g+b*b), 0.5);
         
-      greyData[i] = (unsigned char) ( 255 * (  normProjRed   * r / colorLength
-                                             + normProjGreen * g / colorLength
-                                             + normProjBlue  * b / colorLength ) );
+      greyData[i] = (unsigned char) ( 255 * (  normProjRed   * r * invColorLength
+                                             + normProjGreen * g * invColorLength
+                                             + normProjBlue  * b * invColorLength ) );
+      //greyData[i] = (unsigned char) ( 255 * (  normProjRed   * r / colorLength
+      //                                       + normProjGreen * g / colorLength
+      //                                       + normProjBlue  * b / colorLength ) );
       if (greyData[i] < colorThreshold)
         greyData[i] = colorDefault;
     }
@@ -220,11 +228,15 @@ namespace FindLaser {
     const float projGreen = color.green / 255.;
     const float projBlue  = color.blue / 255.;
     
-    const float projLen = pow( projRed*projRed + projGreen*projGreen + projBlue*projBlue, 0.5 );
+    const float invProjLen = InvSqrt(projRed*projRed + projGreen*projGreen + projBlue*projBlue);
+    //const float projLen = pow( projRed*projRed + projGreen*projGreen + projBlue*projBlue, 0.5 );
 
-    const float normProjRed = projRed/projLen*255;
-    const float normProjGreen = projGreen/projLen*255;
-    const float normProjBlue = projBlue/projLen*255;
+    //const float normProjRed = projRed/projLen*255;
+    //const float normProjGreen = projGreen/projLen*255;
+    //const float normProjBlue = projBlue/projLen*255;
+    const float normProjRed = projRed*invProjLen*255;
+    const float normProjGreen = projGreen*invProjLen*255;
+    const float normProjBlue = projBlue*invProjLen*255;
 
     const unsigned int lightThresholdSquared = (unsigned int) lightThreshold * (unsigned int) lightThreshold;
 
@@ -248,10 +260,14 @@ namespace FindLaser {
         const unsigned int colsquares = r*r+g*g+b*b;
   //      const float grey = (1./3.)*(float)(r+g+b);
         if (colsquares/3 > lightThresholdSquared) {
-          const float colorLength = pow((float)(colsquares), 0.5);
-          const float colorProjection =  (   normProjRed   * r / colorLength
-                                           + normProjGreen * g / colorLength
-                                           + normProjBlue  * b / colorLength );
+          //const float colorLength = pow((float)(colsquares), 0.5);
+          //const float colorProjection =  (   normProjRed   * r / colorLength
+          //                                 + normProjGreen * g / colorLength
+          //                                 + normProjBlue  * b / colorLength );
+          const float invColorLength = InvSqrt((float)colsquares);
+          const float colorProjection =  (   normProjRed   * r * invColorLength
+                                           + normProjGreen * g * invColorLength
+                                           + normProjBlue  * b * invColorLength );
           if (colorProjection >= colorThreshold) {
             const float w = colorProjection*colorProjection;
             cw += w;
@@ -281,11 +297,17 @@ namespace FindLaser {
     const float projGreen = color.green / 255.;
     const float projBlue  = color.blue / 255.;
     
-    const float projLen = pow( projRed*projRed + projGreen*projGreen + projBlue*projBlue, 0.5 );
+    const float invProjLen = InvSqrt(projRed*projRed + projGreen*projGreen + projBlue*projBlue);
 
-    const float normProjRed = projRed/projLen*255;
-    const float normProjGreen = projGreen/projLen*255;
-    const float normProjBlue = projBlue/projLen*255;
+    const float normProjRed = projRed*invProjLen*255;
+    const float normProjGreen = projGreen*invProjLen*255;
+    const float normProjBlue = projBlue*invProjLen*255;
+    //const float projLen = pow( projRed*projRed + projGreen*projGreen + projBlue*projBlue, 0.5 );
+
+    //const float normProjRed = projRed/projLen*255;
+    //const float normProjGreen = projGreen/projLen*255;
+    //const float normProjBlue = projBlue/projLen*255;
+
 
     const unsigned int lightThresholdSquared = (unsigned int) lightThreshold * (unsigned int) lightThreshold;
 
@@ -310,10 +332,14 @@ namespace FindLaser {
         const unsigned int colsquares = r*r+g*g+b*b;
   //      const float grey = (1./3.)*(float)(r+g+b);
         if (colsquares/3 > lightThresholdSquared) {
-          const float colorLength = pow((float)(colsquares), 0.5);
-          const float colorProjection =  (   normProjRed   * r / colorLength
-                                           + normProjGreen * g / colorLength
-                                           + normProjBlue  * b / colorLength );
+          //const float colorLength = pow((float)(colsquares), 0.5);
+          //const float colorProjection =  (   normProjRed   * r / colorLength
+          //                                 + normProjGreen * g / colorLength
+          //                                 + normProjBlue  * b / colorLength );
+          const float invColorLength = InvSqrt(colsquares);
+          const float colorProjection =  (   normProjRed   * r * invColorLength
+                                           + normProjGreen * g * invColorLength
+                                           + normProjBlue  * b * invColorLength );
           if (colorProjection >= colorThreshold) {
             const float w = colorProjection*colorProjection;
             cw += w;
