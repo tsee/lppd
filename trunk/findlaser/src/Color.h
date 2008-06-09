@@ -2,6 +2,9 @@
 #define __FindLaser__Color_h
 
 namespace FindLaser {
+  float InvSqrt(float x);
+
+
  // I know, public... but this is just a struct!
   class Color {
     public:
