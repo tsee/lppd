@@ -6,7 +6,7 @@ LDFLAGS += -ggdb -ljpeg -fPIC -lstdc++ -lX11
 SDL_LDFLAGS= -lSDL_image -lSDL_gfx -lSDL_ttf $(shell sdl-config --libs) 
 CXXFLAGS += -ggdb -fPIC $(shell sdl-config --cflags) -Isrc
 #CXXFLAGS += -pg
-CXXFLAGS += -O3
+CXXFLAGS += -O2
 
 SRC_DIR=src
 BIN_DIR=bin
