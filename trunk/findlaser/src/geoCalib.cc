@@ -141,7 +141,7 @@ int main()
 
   // init position averaging
   // FIXME replace with proper history!
-  const unsigned int historyLength = 20;
+  const unsigned int historyLength = 50;
   double lastCX[historyLength];
   double lastCY[historyLength];
   double distSq[historyLength];
