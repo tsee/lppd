@@ -146,15 +146,14 @@ int main()
   // Initialize SDL display
   if ( SDL_Init(SDL_INIT_VIDEO) < 0 )
   {
-    fprintf(stderr, "SDL konnte nicht initialisiert werden:  %s\n",
-        SDL_GetError());
+    cerr << "Could not initialize SDL: " << SDL_GetError() << endl;
     exit(1);
   }
 
    	
-  // Initialize STL_ttf
+  // Initialize SDL_ttf
   if(TTF_Init()==-1) {
-    printf("TTF_Init: %s\n", TTF_GetError());
+    cerr << "SDL_TTF: TTF_Init() failed: " << TTF_GetError() << endl;
     exit(2);
   }
 
@@ -170,10 +169,8 @@ int main()
   //display = SDL_SetVideoMode( 800, 600, 24, SDL_SWSURFACE);
 //  display = SDL_SetVideoMode( 800, 600, 16, SDL_SWSURFACE|SDL_FULLSCREEN );
   //display = SDL_SetVideoMode( 800, 600, 16, SDL_SWSURFACE );
-  if ( display == NULL )
-  {
-    fprintf(stderr, "Konnte kein Fenster 800x600px oeffnen: %s\n",
-        SDL_GetError());
+  if ( display == NULL ) {
+    cerr << "Could not create SDL display: " << SDL_GetError() << endl;
     exit(1);
   }
   atexit(SDL_Quit);
@@ -184,11 +181,11 @@ int main()
   SDL_RWops *rw = NULL;
 
   // Load SDL cursor 
-  cursor = IMG_Load("res/images/cursor.png");
+  const string cursorFile = "res/images/cursor.png";
+  cursor = IMG_Load(cursorFile.c_str());
   if (cursor == NULL) {
-    fprintf(stderr, "Das Bild konnte nicht geladen werden:%s\n",
-        SDL_GetError());
-    exit(-1);
+    cerr << "Could not load cursor image '" << cursorFile << "', error: " << SDL_GetError() << endl;
+    exit(3);
   }
 
   // Cursor 
@@ -422,9 +419,8 @@ int main()
     pnmptr = NULL;
 
     if (sdlimage == NULL) {
-      fprintf(stderr, "Das Bild konnte nicht geladen werden:%s\n",
-          SDL_GetError());
-      exit(-1);
+      cerr << "Could not load image: " << SDL_GetError() << endl;
+      exit(4);
     }
 
     double cx = 0, cy = 0;
