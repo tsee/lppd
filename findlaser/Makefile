@@ -27,6 +27,7 @@ EXE=$(patsubst %,$(BIN_DIR)/%, $(EXEBASE))
 IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,   /Color /Image /jpegstuff /GreyImage /ColorImage)
 HISTORY_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, /HistoryPoint /History)
 COMMON_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,  /Configuration /ImageCapture /GeometryCorrection) $(HISTORY_OBJECTS)
+GUI_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,  /Cursor)
 
 all: $(OBJECTS) bin test
 
@@ -41,10 +42,10 @@ test: nonbin $(TESTEXE)
 
 # EXECUTABLES
 $(BIN_DIR)/sdl: nonbin
-	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/sdl.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(GUI_OBJECTS) $(OBJ_DIR)/sdl.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
 
 $(BIN_DIR)/geoCalib: nonbin
-	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/geoCalib.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(GUI_OBJECTS) $(OBJ_DIR)/geoCalib.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
 
 $(BIN_DIR)/findLaser: nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/findLaser.o -o $@ $(LDFLAGS)
@@ -63,3 +64,4 @@ realclean:
 	@rm -f $(OBJECTS) *~ core *.o *.so $(OBJ_DIR)/*.o $(BIN_DIR)/* $(TESTEXE)
 
 .PHONY: all clean nonbin bin realclean test
+
