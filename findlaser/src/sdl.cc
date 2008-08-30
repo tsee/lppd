@@ -117,26 +117,7 @@ int main()
   }
   */
 
-  // Camera settings
-  //int cameraBrightness = cap.GetBrightness();
-  int cameraBrightness = cfg.GetCameraBrightness();
-  const int cameraBrightnessMax = 65536;
-  const int cameraBrightnessMin = 0;
-
-  int cameraContrast = cfg.GetCameraContrast();
-  const int cameraContrastMax = 65536;
-  const int cameraContrastMin = 0;
-
-  // spot finding thresholds
-  double thresholdColor = cfg.GetColorThreshold();
-  const double thresholdColorMin = 0;
-  const double thresholdColorMax = 255;
-
-  double thresholdLight = cfg.GetBrightnessThreshold();
-  const double thresholdLightMin = 0;
-  const double thresholdLightMax = 255;
-
-  cap.SetCaptureProperties(cameraBrightness, cameraContrast);
+  cap.SetCaptureProperties(cfg.GetCameraBrightness(), cfg.GetCameraContrast());
 
   // Color objects for color projection
   Color red(255,0,0);
@@ -302,56 +283,48 @@ int main()
     if (lastkey > -1) {
       switch (lastkey) {
         case SDLK_r:
-          thresholdColor += keyaccel;
-          if (thresholdColor > thresholdColorMax)
-            thresholdColor = thresholdColorMax;
-          displayText = string("Color Threshold: ") + stringify(thresholdColor) + string(" / ") + stringify(thresholdColorMax);
+          cfg.SetColorThreshold( cfg.GetColorThreshold() + keyaccel );
+          displayText = string("Color Threshold: ") + stringify(cfg.GetColorThreshold())
+                        + string(" / ") + stringify(cfg.GetColorThresholdMax());
           break;
         case SDLK_f:
-          thresholdColor -= keyaccel;
-          if (thresholdColor < thresholdColorMin)
-            thresholdColor = thresholdColorMin;
-          displayText = string("Color Threshold: ") + stringify(thresholdColor) + string(" / ") + stringify(thresholdColorMax);
+          cfg.SetColorThreshold( cfg.GetColorThreshold() - keyaccel );
+          displayText = string("Color Threshold: ") + stringify(cfg.GetColorThreshold())
+                        + string(" / ") + stringify(cfg.GetColorThresholdMax());
           break;
         case SDLK_t:
-          thresholdLight += keyaccel;
-          if (thresholdLight > thresholdLightMax)
-            thresholdLight = thresholdLightMax;
-          displayText = string("Light Threshold: ") + stringify(thresholdLight) + string(" / ") + stringify(thresholdLightMax);
+          cfg.SetBrightnessThreshold( cfg.GetBrightnessThreshold() + keyaccel );
+          displayText = string("Light Threshold: ") + stringify(cfg.GetBrightnessThreshold())
+                        + string(" / ") + stringify(cfg.GetBrightnessThresholdMax());
           break;
         case SDLK_g:
-          thresholdLight -= keyaccel;
-          if (thresholdLight < thresholdLightMin)
-            thresholdLight = thresholdLightMin;
-          displayText = string("Light Threshold: ") + stringify(thresholdLight) + string(" / ") + stringify(thresholdLightMax);
+          cfg.SetBrightnessThreshold( cfg.GetBrightnessThreshold() - keyaccel );
+          displayText = string("Light Threshold: ") + stringify(cfg.GetBrightnessThreshold())
+                        + string(" / ") + stringify(cfg.GetBrightnessThresholdMax());
           break;
         case SDLK_u:
-          cameraBrightness += keyaccel*50;
-          if (cameraBrightness > cameraBrightnessMax)
-            cameraBrightness = cameraBrightnessMax;
-          cap.SetBrightness(cameraBrightness);
-          displayText = string("Camera Brightness: ") + stringify(cameraBrightness) + string(" / ") + stringify(cameraBrightnessMax);
+          cfg.SetCameraBrightness( cfg.GetCameraBrightness() + keyaccel*50 );
+          cap.SetBrightness( cfg.GetCameraBrightness() );
+          displayText = string("Camera Brightness: ") + stringify(cfg.GetCameraBrightness())
+                        + string(" / ") + stringify(cfg.GetCameraBrightnessMax());
           break;
         case SDLK_j:
-          cameraBrightness -= keyaccel*50;
-          if (cameraBrightness < cameraBrightnessMin)
-            cameraBrightness = cameraBrightnessMin;
-          cap.SetBrightness(cameraBrightness);
-          displayText = string("Camera Brightness: ") + stringify(cameraBrightness) + string(" / ") + stringify(cameraBrightnessMax);
+          cfg.SetCameraBrightness( cfg.GetCameraBrightness() - keyaccel*50 );
+          cap.SetBrightness( cfg.GetCameraBrightness() );
+          displayText = string("Camera Brightness: ") + stringify(cfg.GetCameraBrightness())
+                        + string(" / ") + stringify(cfg.GetCameraBrightnessMax());
           break;
         case SDLK_i:
-          cameraContrast += keyaccel*200;
-          if (cameraContrast > cameraContrastMax)
-            cameraContrast = cameraContrastMax;
-          cap.SetContrast(cameraContrast);
-          displayText = string("Camera Contrast: ") + stringify(cameraContrast) + string(" / ") + stringify(cameraContrastMax);
+          cfg.SetCameraContrast( cfg.GetCameraContrast() + keyaccel*200 );
+          cap.SetContrast( cfg.GetCameraContrast() );
+          displayText = string("Camera Contrast: ") + stringify(cfg.GetCameraContrast())
+                        + string(" / ") + stringify(cfg.GetCameraContrastMax());
           break;
         case SDLK_k:
-          cameraContrast -= keyaccel*200;
-          if (cameraContrast < cameraContrastMin)
-            cameraContrast = cameraContrastMin;
-          cap.SetContrast(cameraContrast);
-          displayText = string("Camera Contrast: ") + stringify(cameraContrast) + string(" / ") + stringify(cameraContrastMax);
+          cfg.SetCameraContrast( cfg.GetCameraContrast() - keyaccel*200 );
+          cap.SetContrast( cfg.GetCameraContrast() );
+          displayText = string("Camera Contrast: ") + stringify(cfg.GetCameraContrast())
+                        + string(" / ") + stringify(cfg.GetCameraContrastMax());
           break;
         case SDLK_c:
           capture = true;
@@ -382,12 +355,12 @@ int main()
       pnmptr = captureImage->AsPNM(pnmsize);
     }
     else if (displayMode == 2) {
-      GreyImage* colorProj = captureImage->NormalizedColorProjection(red, (unsigned char)thresholdColor, 1);
+      GreyImage* colorProj = captureImage->NormalizedColorProjection(red, (unsigned char)cfg.GetColorThreshold(), 1);
       pnmptr = colorProj->AsPNM(pnmsize);
       delete colorProj;
     }
     else if (displayMode == 3) {
-      GreyImage* grey = captureImage->ToGreyscale((unsigned char)thresholdLight, 1);
+      GreyImage* grey = captureImage->ToGreyscale((unsigned char)cfg.GetBrightnessThreshold(), 1);
       pnmptr = grey->AsPNM(pnmsize);
       delete grey;
     }
@@ -409,8 +382,7 @@ int main()
 
     double cx = 0, cy = 0;
     captureImage->FindLaserCentroid(
-      cx, cy, red, thresholdColor, thresholdLight    
-      //cx, cy, red, thresholdColor, thresholdLight    
+      cx, cy, red, cfg.GetColorThreshold(), cfg.GetBrightnessThreshold() 
     );
 //    if ( pow(lastCX-cx,2)+pow(lastCY-cy,2)
   
@@ -476,9 +448,5 @@ int main()
   TTF_Quit();
   SDL_Quit();
 
-  cfg.SetCameraBrightness(cameraBrightness);
-  cfg.SetCameraContrast(cameraContrast);
-  cfg.SetColorThreshold(thresholdColor);
-  cfg.SetBrightnessThreshold(thresholdLight);
   cfg.WriteConfiguration();
 }
