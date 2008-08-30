@@ -23,6 +23,7 @@
 #include "ImageCapture.h"
 #include "Configuration.h"
 #include "GeometryCorrection.h"
+#include "Cursor.h"
 
 using namespace std;
 using namespace FindLaser;
@@ -176,29 +177,12 @@ int main()
   atexit(SDL_Quit);
 
   // SDL structures for image display
-  SDL_Surface* cursor = NULL;
   SDL_Surface* sdlimage = NULL;
   SDL_RWops *rw = NULL;
 
   // Load SDL cursor 
   const string cursorFile = "res/images/cursor.png";
-  cursor = IMG_Load(cursorFile.c_str());
-  if (cursor == NULL) {
-    cerr << "Could not load cursor image '" << cursorFile << "', error: " << SDL_GetError() << endl;
-    exit(3);
-  }
-
-  // Cursor 
-  SDL_Rect cursorSourceRect;
-  SDL_Rect cursorDestRect;
-
-  cursorSourceRect.x = 0;
-  cursorSourceRect.y = 0;
-  cursorSourceRect.w = cursor->w;
-  cursorSourceRect.h = cursor->h;
-
-  cursorDestRect.w = cursor->w;
-  cursorDestRect.h = cursor->h;
+  FindLaser::Cursor cursor(cursorFile);
 
   // Image target rectangle
   SDL_Rect imgSourceRect;
@@ -464,9 +448,7 @@ int main()
       XCloseDisplay(displayX);
 */
       
-      cursorDestRect.x = screenCX-cursorDestRect.w/2;
-      cursorDestRect.y = screenCY-cursorDestRect.h/2;
-      SDL_BlitSurface(cursor, &cursorSourceRect, display, &cursorDestRect);
+      cursor.Draw(display, screenCX, screenCY);
       //SDL_BlitSurface(sdlimage, NULL, display, NULL);
       cerr << " " << cx << " " << cy << " - " << screenCX <<" " << screenCY;
     } 
