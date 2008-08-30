@@ -22,6 +22,7 @@
 
 #include "ImageCapture.h"
 #include "Configuration.h"
+#include "GeometryCorrection.h"
 
 using namespace std;
 using namespace FindLaser;
@@ -40,18 +41,11 @@ inline std::string stringify(int x)
   return o.str();
 }
 
-
-#include "GeometryCorrection.h"
-
 int main()
 {
   GeometryCorrection g;
   g.SetSourceImageDimensions( 320, 240 );
   g.SetTargetImageDimensions( 1280, 800 );
-  //g.SetImageUpperLeft(4.67263, 45.7316);
-  //g.SetImageUpperRight(313.275, 45.6453);
-  //g.SetImageLowerRight(304.93, 212.552);
-  //g.SetImageLowerLeft(15.855, 216.419);
 
   g.SetImageUpperLeft(6.85578, 52.4554);
   g.SetImageUpperRight(310.19, 51.4309);
