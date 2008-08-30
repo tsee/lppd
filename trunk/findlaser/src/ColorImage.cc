@@ -35,7 +35,7 @@ namespace FindLaser {
     const unsigned int size = height * rowsize;
     img = (unsigned char*) malloc(size);
 
-    cout << width << " " << height << " " << GetSamples() << endl;
+    //cout << width << " " << height << " " << GetSamples() << endl;
 
     for (unsigned int i = 0; i < size; i+=3) {
       img[i]   = ptr[i+2];
