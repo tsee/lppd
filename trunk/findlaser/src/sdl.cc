@@ -41,6 +41,22 @@ inline std::string stringify(int x)
   return o.str();
 }
 
+void toggleFullScreen(
+  SDL_Surface** display,
+  unsigned int xFull, unsigned int yFull,
+  unsigned int xNFull, unsigned yNFull)
+{
+  static bool fullscreen = true;
+  if (fullscreen == false) {
+    fullscreen = true;
+    *display = SDL_SetVideoMode( xFull, yFull, 0, SDL_SWSURFACE|SDL_FULLSCREEN );
+  }
+  else {
+    fullscreen = false;
+    *display = SDL_SetVideoMode( xNFull, yNFull, 0, SDL_SWSURFACE );
+  }
+}
+
 int main()
 {
   const string confFile = "settings.txt";
@@ -117,11 +133,10 @@ int main()
 
   SDL_Surface *display;
 
+  toggleFullScreen(&display, screenSizeX, screenSizeY, imageSX, imageSY);
   // display depth 0 means current depth
   //display = SDL_SetVideoMode( imageSX, imageSY, 0, SDL_SWSURFACE );
-
-  display = SDL_SetVideoMode( screenSizeX, screenSizeY, 0, SDL_SWSURFACE|SDL_FULLSCREEN );
-
+  //display = SDL_SetVideoMode( screenSizeX, screenSizeY, 0, SDL_SWSURFACE|SDL_FULLSCREEN );
   //display = SDL_SetVideoMode( 800, 600, 24, SDL_SWSURFACE);
 //  display = SDL_SetVideoMode( 800, 600, 16, SDL_SWSURFACE|SDL_FULLSCREEN );
   //display = SDL_SetVideoMode( 800, 600, 16, SDL_SWSURFACE );
@@ -210,6 +225,9 @@ int main()
           switch (event.key.keysym.sym) {
            case SDLK_q:
             running = 0;
+            break;
+           case SDLK_a:
+            toggleFullScreen(&display, screenSizeX, screenSizeY, imageSX, imageSY);
             break;
            case SDLK_u:
             lastkey = SDLK_u;
