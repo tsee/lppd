@@ -7,7 +7,17 @@
 
 using namespace std;
 
+
 namespace FindLaser {
+
+  const unsigned int Configuration::fgCameraBrightnessMin    = 0;
+  const unsigned int Configuration::fgCameraBrightnessMax    = 65535;
+  const unsigned int Configuration::fgCameraContrastMin      = 0;
+  const unsigned int Configuration::fgCameraContrastMax      = 65535;
+  const unsigned int Configuration::fgBrightnessThresholdMin = 0;
+  const unsigned int Configuration::fgBrightnessThresholdMax = 255;
+  const unsigned int Configuration::fgColorThresholdMin      = 0;
+  const unsigned int Configuration::fgColorThresholdMax      = 255;
 
   Configuration::Configuration(const string& fileName)
     : fCameraBrightness(32000), fCameraContrast(32000),
@@ -140,6 +150,42 @@ namespace FindLaser {
     if (fGeometryCorrection)
       delete fGeometryCorrection;
     fGeometryCorrection = g;
+  }
+
+  void Configuration::SetCameraBrightness(const int camBr) {
+    if (camBr < fgCameraBrightnessMin)
+      fCameraBrightness = fgCameraBrightnessMin;
+    else if (camBr > fgCameraBrightnessMax)
+      fCameraBrightness = fgCameraBrightnessMax;
+    else
+      fCameraBrightness = camBr;
+  }
+
+  void Configuration::SetCameraContrast(const int camCo) {
+    if (camCo < fgCameraContrastMin)
+      fCameraContrast = fgCameraContrastMin;
+    else if (camCo > fgCameraContrastMax)
+      fCameraContrast = fgCameraContrastMax;
+    else
+      fCameraContrast = camCo;
+  }
+
+  void Configuration::SetBrightnessThreshold(const double briThr) {
+    if (briThr < fgBrightnessThresholdMin)
+      fBrightnessThreshold = fgBrightnessThresholdMin;
+    else if (briThr > fgBrightnessThresholdMax)
+      fBrightnessThreshold = fgBrightnessThresholdMax;
+    else
+      fBrightnessThreshold = briThr;
+  }
+
+  void Configuration::SetColorThreshold(const double colThr) {
+    if (colThr < fgColorThresholdMin)
+      fColorThreshold = fgColorThresholdMin;
+    else if (colThr > fgColorThresholdMax)
+      fColorThreshold = fgColorThresholdMax;
+    else
+      fColorThreshold = colThr;
   }
 
 } // end namespace FindLaser 
