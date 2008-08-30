@@ -8,6 +8,7 @@
 - Design & implement geometric calibration
 --> picture size selection
 --> trapezoidal correction
+--> real funky, arbitrary picture transformations
 
 - Find out how to best send keyboard events
 - Find out how to best send mouse clicks
