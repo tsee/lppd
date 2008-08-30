@@ -27,6 +27,7 @@
 using namespace std;
 using namespace FindLaser;
 
+/*************************************/
 inline std::string stringify(double x)
 {
   std::ostringstream o;
@@ -41,6 +42,7 @@ inline std::string stringify(int x)
   return o.str();
 }
 
+/*************************************/
 void toggleFullScreen(
   SDL_Surface** display,
   unsigned int xFull, unsigned int yFull,
@@ -57,6 +59,38 @@ void toggleFullScreen(
   }
 }
 
+/*************************************/
+bool updateText(
+  const string& displayText, SDL_Surface* display
+) {
+  static SDL_Surface* textSurface = NULL;
+  static string renderedText = "";
+  static TTF_Font* font = TTF_OpenFont("res/fonts/Vera.ttf", 16);
+  static SDL_Color fontBgColor={0,0,0};
+  static SDL_Color fontColor={0xff,0xff,0xff};
+
+  if (displayText == string(""))
+    return false;
+  if (renderedText == displayText)
+    return false;
+
+  // cleanup old text
+  if (textSurface != NULL) {
+    SDL_FreeSurface(textSurface);
+    textSurface = NULL;
+  }
+
+  if(!(textSurface = TTF_RenderUTF8_Shaded(font,displayText.c_str(),fontColor,fontBgColor))) {
+    cerr << "Error with text rendering: " << TTF_GetError() << endl;
+    return(1);
+  }
+  renderedText = displayText;
+  SDL_BlitSurface(textSurface, NULL, display, NULL);
+
+  return true;
+}
+
+/*************************************/
 int main()
 {
   const string confFile = "settings.txt";
@@ -123,10 +157,6 @@ int main()
     printf("TTF_Init: %s\n", TTF_GetError());
     exit(2);
   }
-  TTF_Font* font = TTF_OpenFont("res/fonts/Vera.ttf", 16);
-  SDL_Color fontBgColor={0,0,0}, fontColor={0xff,0xff,0xff};
-  SDL_Surface* textSurface = NULL;
-
 
   const SDL_VideoInfo *currentVid = SDL_GetVideoInfo();
   const unsigned int screenSizeX = currentVid->current_w, screenSizeY = currentVid->current_h;
@@ -203,7 +233,6 @@ int main()
 
   // text display
   string displayText  = "";
-  string renderedText = "";
 
   // keys and key conrol
   int lastkey  = -1;
@@ -447,21 +476,7 @@ int main()
     } 
     SDL_FreeSurface(rescaledSdlImage);
    
-    // Render text
-    if (displayText != string("")) {
-      if (renderedText != displayText) {
-        if (textSurface != NULL) {
-          SDL_FreeSurface(textSurface);
-          textSurface = NULL;
-        }
-        if(!(textSurface = TTF_RenderUTF8_Shaded(font,displayText.c_str(),fontColor,fontBgColor))) {
-          cerr << "Error with text rendering: " << TTF_GetError() << endl;
-          return(1);
-        }
-        renderedText = displayText;
-      } // end "needs rendering"
-      SDL_BlitSurface(textSurface, NULL, display, NULL);
-    }
+    updateText(displayText, display);
     cerr << endl;
     
     //SDL_UpdateRects(display,1,&drect);
@@ -476,10 +491,10 @@ int main()
 
   // Das Bitmap-Surface löschen
   SDL_FreeSurface(sdlimage);
-  SDL_FreeSurface(textSurface);
-  textSurface = NULL;
-  TTF_CloseFont(font);
-  font = NULL;
+  //SDL_FreeSurface(textSurface);
+  //textSurface = NULL;
+  //TTF_CloseFont(font);
+  //font = NULL;
   TTF_Quit();
   SDL_Quit();
 
