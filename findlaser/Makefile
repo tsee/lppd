@@ -17,7 +17,7 @@ HEADERS=$(wildcard $(SRC_DIR)/*.h))
 OBJECTS=$(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(SOURCES))
 #OBJECTS+=$(patsubst %ROOT.h, %Dict.o, $(wildcard */*ROOT.h))
 
-EXEBASE=sdl findLaser findLaserCapture testGeoTrans
+EXEBASE=sdl findLaser findLaserCapture testGeoTrans geoCalib
 EXE=$(patsubst %,$(BIN_DIR)/%, $(EXEBASE))
 
 IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,   /Color /Image /jpegstuff /GreyImage /ColorImage)
@@ -38,6 +38,9 @@ bin: nonbin $(EXE)
 $(BIN_DIR)/sdl: nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/sdl.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
 
+$(BIN_DIR)/geoCalib: nonbin
+	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/geoCalib.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
+
 $(BIN_DIR)/findLaser: nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/findLaser.o -o $@ $(LDFLAGS)
 
@@ -45,7 +48,7 @@ $(BIN_DIR)/findLaserCapture: nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/findLaserCapture.o -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/testGeoTrans: nonbin
-	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/testGeoTrans.o -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(COMMON_OBJECTS) $(OBJ_DIR)/testGeoTrans.o -o $@ $(LDFLAGS)
 
 clean:
 	@rm -f $(OBJECTS) *~ core *.o *.so $(OBJ_DIR)/*.o
