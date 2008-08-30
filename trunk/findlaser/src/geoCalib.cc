@@ -22,6 +22,7 @@
 
 #include "ImageCapture.h"
 #include "Configuration.h"
+#include "GeometryCorrection.h"
 
 using namespace std;
 using namespace FindLaser;
@@ -45,6 +46,8 @@ int main()
 {
   const string confFile = "settings.txt";
   Configuration cfg(confFile);
+  // Just a pointer to the bowels of the cfg object:
+  GeometryCorrection* gCorr = cfg.GetGeometryCorrection();
 
   // Initialize webcam image capturing
   const unsigned int imageSX = cfg.GetCameraImageSizeX(), imageSY = cfg.GetCameraImageSizeY();
@@ -258,6 +261,20 @@ int main()
     }
 
     cerr << cx << " " << cy << endl;
+    switch (edge) {
+      case 1:
+        gCorr->SetImageUpperLeft( cx, cy );
+        break;
+      case 2:
+        gCorr->SetImageUpperRight( cx, cy );
+        break;
+      case 3:
+        gCorr->SetImageLowerRight( cx, cy );
+        break;
+      case 4:
+        gCorr->SetImageLowerLeft( cx, cy );
+        break;
+    }
    
     // aktualisiert alles
     SDL_Flip(display);
@@ -265,6 +282,8 @@ int main()
 
   SDL_Delay(300);
 
+  cfg.WriteConfiguration();
+  
   // Das Bitmap-Surface löschen
   SDL_FreeSurface(target);
   SDL_Quit();
