@@ -41,8 +41,23 @@ inline std::string stringify(int x)
 }
 
 
+#include "GeometryCorrection.h"
+
 int main()
 {
+  GeometryCorrection g;
+  g.SetSourceImageDimensions( 320, 240 );
+  g.SetTargetImageDimensions( 1280, 800 );
+  //g.SetImageUpperLeft(4.67263, 45.7316);
+  //g.SetImageUpperRight(313.275, 45.6453);
+  //g.SetImageLowerRight(304.93, 212.552);
+  //g.SetImageLowerLeft(15.855, 216.419);
+
+  g.SetImageUpperLeft(6.85578, 52.4554);
+  g.SetImageUpperRight(310.19, 51.4309);
+  g.SetImageLowerRight(303.391, 216.568);
+  g.SetImageLowerLeft(12.9334, 213.507);
+
 
   const string confFile = "settings.txt";
   Configuration cfg(confFile);
@@ -119,6 +134,7 @@ int main()
 
   // display depth 0 means current depth
   //display = SDL_SetVideoMode( imageSX, imageSY, 0, SDL_SWSURFACE );
+
   display = SDL_SetVideoMode( screenSizeX, screenSizeY, 0, SDL_SWSURFACE|SDL_FULLSCREEN );
 
   //display = SDL_SetVideoMode( 800, 600, 24, SDL_SWSURFACE);
@@ -405,15 +421,19 @@ int main()
       sLastCY = lastCY;
       lastCX = cx;
       lastCY = cy;
-    
+
       unsigned int screenCX = (unsigned int) (screenSizeX * relCX);
       unsigned int screenCY = (unsigned int) (screenSizeY * relCY);
+      float x, y;
+      g.GetImageCoordinates(cx, cy, x, y);
+      screenCX = (unsigned int) x;
+      screenCY = (unsigned int) y;
 
       // Set X cursor
-/*      Display *display = XOpenDisplay(NULL);
-      Window root = DefaultRootWindow(display);
-      XWarpPointer(display, None, root, 0, 0, 0, 0, screenCX, screenCY);
-      XCloseDisplay(display);
+/*      Display *displayX = XOpenDisplay(NULL);
+      Window root = DefaultRootWindow(displayX);
+      XWarpPointer(displayX, None, root, 0, 0, 0, 0, screenCX, screenCY);
+      XCloseDisplay(displayX);
 */
       
       cursorDestRect.x = screenCX-cursorDestRect.w/2;
