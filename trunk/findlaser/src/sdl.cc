@@ -43,18 +43,9 @@ inline std::string stringify(int x)
 
 int main()
 {
-  GeometryCorrection g;
-  g.SetSourceImageDimensions( 320, 240 );
-  g.SetTargetImageDimensions( 1280, 800 );
-
-  g.SetImageUpperLeft(6.85578, 52.4554);
-  g.SetImageUpperRight(310.19, 51.4309);
-  g.SetImageLowerRight(303.391, 216.568);
-  g.SetImageLowerLeft(12.9334, 213.507);
-
-
   const string confFile = "settings.txt";
   Configuration cfg(confFile);
+  GeometryCorrection* geoCorr = cfg.GetGeometryCorrection();
 
   // Initialize webcam image capturing
   const unsigned int imageSX = cfg.GetCameraImageSizeX(), imageSY = cfg.GetCameraImageSizeY();
@@ -419,7 +410,7 @@ int main()
       unsigned int screenCX = (unsigned int) (screenSizeX * relCX);
       unsigned int screenCY = (unsigned int) (screenSizeY * relCY);
       float x, y;
-      g.GetImageCoordinates(cx, cy, x, y);
+      geoCorr->GetImageCoordinates(cx, cy, x, y);
       screenCX = (unsigned int) x;
       screenCY = (unsigned int) y;
 
