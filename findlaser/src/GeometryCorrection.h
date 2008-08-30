@@ -19,6 +19,8 @@ namespace FindLaser {
       void SetImageLowerLeft( const float x, const float y );
       void SetImageLowerRight( const float x, const float y );
       
+      void GetImageCornersClockwise( float* coords );
+
       void GetImageCoordinates(
         const float sourceX, const float sourceY,
         float& targetX, float& targetY

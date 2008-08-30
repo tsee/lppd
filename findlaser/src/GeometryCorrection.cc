@@ -64,10 +64,22 @@ namespace FindLaser {
 
     const float leftXBoundary  = fImageLowerLeftX + (fImageUpperLeftX-fImageLowerLeftX)*relY;
     const float rightXBoundary = fImageLowerRightX + (fImageUpperRightX-fImageLowerRightX)*relY;
-    const float thisWidth = rightXBoundary - leftXBoundary;
+    const float thisWidth = fabs(rightXBoundary - leftXBoundary);
     
     const float relX = (sourceX-leftXBoundary)/thisWidth;
     targetX = relX * fTargetWidth;
   }
 
+  void GeometryCorrection::GetImageCornersClockwise( float* coords )
+  {
+    coords = new float[8];
+    coords[0] = fImageUpperLeftX;
+    coords[1] = fImageUpperLeftY;
+    coords[2] = fImageUpperRightX;
+    coords[3] = fImageUpperRightY;
+    coords[4] = fImageLowerRightX;
+    coords[5] = fImageLowerRightY;
+    coords[6] = fImageLowerLeftX;
+    coords[7] = fImageLowerLeftY;
+  }
 } // end namespace FindLaser
