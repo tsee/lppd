@@ -4,10 +4,12 @@
 #include <string>
 
 namespace FindLaser {
+  class GeometryCorrection;
 
   class Configuration {
     public:
       Configuration(const std::string& fileName);
+      ~Configuration();
 
       bool WriteConfiguration();
 
@@ -32,6 +34,9 @@ namespace FindLaser {
       const std::string& GetFileName() { return fFileName; }
       void SetFileName(const std::string& fileName) { fFileName = fileName; }
 
+      GeometryCorrection* GetGeometryCorrection() { return fGeometryCorrection; }
+      void SetGeometryCorrection(GeometryCorrection* g);
+
     private:
       bool ReadConfiguration();
 
@@ -43,6 +48,7 @@ namespace FindLaser {
       double fBrightnessThreshold;
       double fColorThreshold;
       std::string fCameraDevice;
+      GeometryCorrection* fGeometryCorrection;
   }; // end class Configuration
 
 } // end namespace FindLaser
