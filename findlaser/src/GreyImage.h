@@ -17,6 +17,8 @@ namespace FindLaser {
       
       GreyImage* CutOnThreshold(unsigned char threshold, unsigned char replacement);
 
+      GreyImage* Difference(GreyImage* img);
+
       void SaveAsJPEG(std::string filename, int quality);
       int GetSamples() { return 1; }
   };

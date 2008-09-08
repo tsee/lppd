@@ -51,6 +51,38 @@ namespace FindLaser {
     return grey;
   }
 
+  GreyImage* GreyImage::Difference(GreyImage* img) {
+    if (img == NULL)
+      return NULL;
+    
+    unsigned char* thisimg = GetImage();
+    const unsigned int rows = GetRows();
+    const unsigned int cols = GetColumns();
+
+    const unsigned int sRows = img->GetRows();
+    const unsigned int sCols = img->GetColumns();
+    unsigned char* thatimg   = img->GetImage();
+
+    if (sRows != rows || sCols != cols)
+      return NULL;
+
+    GreyImage* diffI = new GreyImage();
+    unsigned char* newimg = diffI->GetImage();
+    const unsigned int size = cols*rows*1*sizeof(unsigned char);
+    newimg = (unsigned char*) malloc(size);
+
+    diffI->SetColumns(cols);
+    diffI->SetRows(rows);
+
+    for (unsigned int i = 0; i < size; i++) {
+      const short diff = ((short) thisimg[i]) - ((short) thatimg[i]);
+      newimg[i] = (unsigned char) (diff < 0 ? -diff : diff);
+    }
+
+    diffI->SetImage(newimg);
+
+    return diffI;
+  }
 
 } // end namespace FindLaser
 
