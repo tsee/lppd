@@ -344,11 +344,9 @@ int main()
       exit(4);
     }
 
-    double cx = 0, cy = 0;
-/*    captureImage->FindLaserCentroid(
-      cx, cy, red, cfg.GetColorThreshold(), cfg.GetBrightnessThreshold() 
-    );
-*/
+    float cx = 0, cy = 0;
+    if (diffImage != NULL)
+      diffImage->CalcCentroid(cx, cy);
   
     frame++;
     cerr << frame;
@@ -360,27 +358,21 @@ int main()
     //SDL_BlitSurface(QuellSurface, Quellbereich, ZielSurface, Zielbereich)
     SDL_BlitSurface(rescaledSdlImage, &imgSourceRect, display, &imgDestRect);
 
-/*    if (cx >= 0) {
+    if (cx >= 0) {
       double relCX = cx / captureImage->GetColumns();
       double relCY = cy / captureImage->GetRows();
-      //double relCX = (0.5*cx+0.3*lastCX+0.2*sLastCX) / captureImage->GetColumns();
-      //double relCY = (0.5*cy+0.3*lastCY+0.2*sLastCX) / captureImage->GetRows();
-      sLastCX = lastCX;
-      sLastCY = lastCY;
-      lastCX = cx;
-      lastCY = cy;
       unsigned int screenCX = (unsigned int) (screenSizeX * relCX);
       unsigned int screenCY = (unsigned int) (screenSizeY * relCY);
-      float x, y;
-      geoCorr->GetImageCoordinates(cx, cy, x, y);
-      screenCX = (unsigned int) x;
-      screenCY = (unsigned int) y;
+      //float x, y;
+      //geoCorr->GetImageCoordinates(cx, cy, x, y);
+      //screenCX = (unsigned int) x;
+      //screenCY = (unsigned int) y;
 
       cursor.Draw(display, screenCX, screenCY);
       //SDL_BlitSurface(sdlimage, NULL, display, NULL);
       cerr << " " << cx << " " << cy << " - " << screenCX <<" " << screenCY;
     }
-    */ 
+    
     SDL_FreeSurface(rescaledSdlImage);
    
     updateText(displayText, display);
