@@ -23,7 +23,7 @@ OBJECTS=$(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(SOURCES))
 TESTSOURCES=$(wildcard $(TEST_DIR)/*.cc)
 TESTEXE=$(patsubst $(TEST_DIR)/%.cc,$(TEST_DIR)/%, $(TESTSOURCES))
 
-EXEBASE=sdl findLaser findLaserCapture geoCalib motion
+EXEBASE=sdl findLaser findLaserCapture geoCalib
 EXE=$(patsubst %,$(BIN_DIR)/%, $(EXEBASE))
 
 IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,   /Color /Image /jpegstuff /GreyImage /ColorImage)
@@ -31,7 +31,9 @@ HISTORY_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, /HistoryPoint /History)
 COMMON_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,  /Configuration /ImageCapture /GeometryCorrection) $(HISTORY_OBJECTS)
 GUI_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,  /Cursor)
 
-all: $(OBJECTS) bin test
+default: $(OBJ_DIR) bin
+
+all: $(OBJECTS) bin test $(BIN_DIR)/motion
 
 $(OBJ_DIR)/%.o: $(SOURCES)
 	$(CXX) -o $@ -c $(SRC_DIR)/$*.cc $(CXXFLAGS)
@@ -56,7 +58,7 @@ $(BIN_DIR)/findLaserCapture: nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/findLaserCapture.o -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/motion: nonbin
-	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(GUI_OBJECTS) $(OBJ_DIR)/sdl.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(GUI_OBJECTS) $(OBJ_DIR)/motion.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
 
 # TESTS
 $(TEST_DIR)/testGeoTrans: nonbin
@@ -68,5 +70,5 @@ clean:
 realclean:
 	@rm -f $(OBJECTS) *~ core *.o *.so $(OBJ_DIR)/*.o $(BIN_DIR)/* $(TESTEXE)
 
-.PHONY: all clean nonbin bin realclean test
+.PHONY: all clean nonbin bin realclean test default
 
