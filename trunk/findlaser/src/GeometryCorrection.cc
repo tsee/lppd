@@ -1,5 +1,6 @@
 #include "GeometryCorrection.h"
 #include <cmath>
+#include <vector>
 
 namespace FindLaser {
   GeometryCorrection::GeometryCorrection()
@@ -70,16 +71,16 @@ namespace FindLaser {
     targetX = relX * fTargetWidth;
   }
 
-  void GeometryCorrection::GetImageCornersClockwise( float* coords )
+  void GeometryCorrection::GetImageCornersClockwise( std::vector<float>& coords )
   {
-    coords = new float[8];
-    coords[0] = fImageUpperLeftX;
-    coords[1] = fImageUpperLeftY;
-    coords[2] = fImageUpperRightX;
-    coords[3] = fImageUpperRightY;
-    coords[4] = fImageLowerRightX;
-    coords[5] = fImageLowerRightY;
-    coords[6] = fImageLowerLeftX;
-    coords[7] = fImageLowerLeftY;
+    coords.clear();
+    coords.push_back(fImageUpperLeftX);
+    coords.push_back(fImageUpperLeftY);
+    coords.push_back(fImageUpperRightX);
+    coords.push_back(fImageUpperRightY);
+    coords.push_back(fImageLowerRightX);
+    coords.push_back(fImageLowerRightY);
+    coords.push_back(fImageLowerLeftX);
+    coords.push_back(fImageLowerLeftY);
   }
 } // end namespace FindLaser

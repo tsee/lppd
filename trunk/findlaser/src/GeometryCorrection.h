@@ -1,6 +1,8 @@
 #ifndef __FindLaser__GeometryCorrection_h
 #define __FindLaser__GeometryCorrection_h_h
 
+#include <vector>
+
 namespace FindLaser {
   class GeometryCorrection {
     public:
@@ -19,7 +21,7 @@ namespace FindLaser {
       void SetImageLowerLeft( const float x, const float y );
       void SetImageLowerRight( const float x, const float y );
       
-      void GetImageCornersClockwise( float* coords );
+      void GetImageCornersClockwise( std::vector<float>& coords );
 
       void GetImageCoordinates(
         const float sourceX, const float sourceY,

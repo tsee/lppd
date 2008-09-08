@@ -129,7 +129,7 @@ namespace FindLaser {
       return false;
     }
 
-    float* corners;
+    vector<float> corners;
     fGeometryCorrection->GetImageCornersClockwise(corners);
 
     fileHandle  << GetCameraImageSizeX()    << "\t" << GetCameraImageSizeY()    << "\n"
@@ -138,8 +138,8 @@ namespace FindLaser {
                 << GetBrightnessThreshold() << "\n"
                 << GetColorThreshold()      << "\n"
                 << GetCameraDevice()        << "\n"
-                << fGeometryCorrection->GetTargetImageWidth()  << "\t" << fGeometryCorrection->GetTargetImageHeight()  << "\t";
-    for (unsigned int i = 0; i < 8; i+=2)
+                << fGeometryCorrection->GetTargetImageWidth()  << "\t" << fGeometryCorrection->GetTargetImageHeight()  << "\n";
+    for (unsigned int i = 0; i < corners.size(); i+=2)
       fileHandle << corners[i] << "\t" << corners[i+1] << "\n";
     fileHandle << endl;
 
