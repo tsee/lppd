@@ -26,7 +26,7 @@ TESTEXE=$(patsubst $(TEST_DIR)/%.cc,$(TEST_DIR)/%, $(TESTSOURCES))
 EXEBASE=sdl findLaser findLaserCapture geoCalib
 EXE=$(patsubst %,$(BIN_DIR)/%, $(EXEBASE))
 
-IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,   /Color /Image /jpegstuff /GreyImage /ColorImage)
+IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,   /Color /Image /jpegstuff /GreyImage /ColorImage /GaussBlur)
 HISTORY_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, /HistoryPoint /History)
 COMMON_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,  /Configuration /ImageCapture /GeometryCorrection) $(HISTORY_OBJECTS)
 GUI_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,  /Cursor)
