@@ -23,7 +23,7 @@ OBJECTS=$(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(SOURCES))
 TESTSOURCES=$(wildcard $(TEST_DIR)/*.cc)
 TESTEXE=$(patsubst $(TEST_DIR)/%.cc,$(TEST_DIR)/%, $(TESTSOURCES))
 
-EXEBASE=sdl findLaser findLaserCapture geoCalib
+EXEBASE=sdl findLaser findLaserCapture geoCalib motion
 EXE=$(patsubst %,$(BIN_DIR)/%, $(EXEBASE))
 
 IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,   /Color /Image /jpegstuff /GreyImage /ColorImage)
@@ -54,6 +54,9 @@ $(BIN_DIR)/findLaser: nonbin
 
 $(BIN_DIR)/findLaserCapture: nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/findLaserCapture.o -o $@ $(LDFLAGS)
+
+$(BIN_DIR)/motion: nonbin
+	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(GUI_OBJECTS) $(OBJ_DIR)/sdl.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
 
 # TESTS
 $(TEST_DIR)/testGeoTrans: nonbin
