@@ -5,6 +5,7 @@
 
 #include "ImageCapture.h"
 #include "Configuration.h"
+#include "GeometryCorrection.h"
 
 #include <string>
 #include <vector>
@@ -22,6 +23,8 @@ int main (int argc, char**  argv) {
   
   const string confFile = "settings.txt";
   Configuration cfg(confFile);
+  // Just a pointer to the bowels of the cfg object:
+  GeometryCorrection* geoCorr = cfg.GetGeometryCorrection();
 
   const unsigned int imageSX = cfg.GetCameraImageSizeX(), imageSY = cfg.GetCameraImageSizeY();
 
@@ -99,6 +102,10 @@ int main (int argc, char**  argv) {
     
       unsigned int screenCX = (unsigned int) (screenSizeX * relCX);
       unsigned int screenCY = (unsigned int) (screenSizeY * relCY);
+      float x, y;
+      geoCorr->GetImageCoordinates(cx, cy, x, y);
+      screenCX = (unsigned int) x;
+      screenCY = (unsigned int) y;
 
       Display *display = XOpenDisplay(NULL);
       Window root = DefaultRootWindow(display);
