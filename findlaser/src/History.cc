@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 
-#include "EventType.h"
+#include "EventFinder.h"
 
 using namespace std;
 
@@ -27,14 +27,14 @@ namespace FindLaser {
     return;
   }
 
-  void History::AddEventType(const EventType& evType) {
+  void History::AddEventFinder(const EventFinder& evType) {
     // FIXME check for equality here
-    fEventTypes.push_back(evType);
+    fEventFinders.push_back(evType);
   }
 
   void History::FindEvents() {
-    for (unsigned int i = 0; i < fEventTypes.size(); i++) {
-      const vector<Event>& ev = fEventTypes[i].Find(fPoints);
+    for (unsigned int i = 0; i < fEventFinders.size(); i++) {
+      const vector<Event>& ev = fEventFinders[i].Find(fPoints);
       for (unsigned int i = 0; i < ev.size(); i++) {
         fEvents.push(ev[i]);
       }

@@ -6,7 +6,7 @@
 #include <vector>
 #include <ctime>
 #include "Event.h"
-#include "EventType.h"
+#include "EventFinder.h"
 #include "HistoryPoint.h"
 
 namespace FindLaser {
@@ -22,7 +22,7 @@ namespace FindLaser {
       void SetMemoryLength(const double seconds) { fMemoryLengthInSeconds = seconds; fMemoryLength = seconds/CLOCKS_PER_SEC; }
       double GetMemoryLength() { return fMemoryLengthInSeconds; }
 
-      void AddEventType(const EventType& evType);
+      void AddEventFinder(const EventFinder& evType);
 
       void FindEvents();
 
@@ -33,7 +33,7 @@ namespace FindLaser {
       double fMemoryLength;
       double fMemoryLengthInSeconds;
       std::list<HistoryPoint> fPoints;
-      std::vector<EventType> fEventTypes;
+      std::vector<EventFinder> fEventFinders;
       std::queue<Event> fEvents;
 
   }; // end class History

@@ -1,5 +1,5 @@
-#ifndef __FindLaser__EventType_h
-#define __FindLaser__EventType_h
+#ifndef __FindLaser__EventFinder_h
+#define __FindLaser__EventFinder_h
 
 #include <ctime>
 #include <vector>
@@ -9,15 +9,16 @@
 
 namespace FindLaser {
   class HistoryPoint;
-  class EventType {
+  class EventFinder {
     public:
-      EventType();
-      virtual ~EventType() {};
+      EventFinder();
+      virtual ~EventFinder() {};
 
+      //virtual std::vector<Event> Find(const std::list<HistoryPoint>& points) = 0;
       virtual std::vector<Event> Find(const std::list<HistoryPoint>& points);
 
     private:
-  }; // end class EventType
+  }; // end class EventFinder
 
 } // end namespace FindLaser
 
