@@ -14,11 +14,4 @@ namespace FindLaser {
   {
   }
 
-  vector<Event> EventFinder::Find(const list<HistoryPoint>& points) {
-    cerr << "Calling the base EventFinder's Find() method is pointless." <<endl;
-    vector<Event> events;
-    return events;
-  }
-
-
 } // end namespace FindLaser

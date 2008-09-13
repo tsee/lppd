@@ -11,13 +11,12 @@ namespace FindLaser {
   class HistoryPoint;
   class EventFinder {
     public:
-      EventFinder();
+      virtual std::vector<Event> Find(const std::list<HistoryPoint>& points) = 0;
+
       virtual ~EventFinder() {};
 
-      //virtual std::vector<Event> Find(const std::list<HistoryPoint>& points) = 0;
-      virtual std::vector<Event> Find(const std::list<HistoryPoint>& points);
-
-    private:
+    protected:
+      EventFinder();
   }; // end class EventFinder
 
 } // end namespace FindLaser
