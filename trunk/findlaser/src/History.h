@@ -14,6 +14,7 @@ namespace FindLaser {
   class History {
     public:
       History ();
+      ~History();
 
       void AddPoint(const HistoryPoint& histPoint);
 
@@ -22,7 +23,7 @@ namespace FindLaser {
       void SetMemoryLength(const double seconds) { fMemoryLengthInSeconds = seconds; fMemoryLength = seconds/CLOCKS_PER_SEC; }
       double GetMemoryLength() { return fMemoryLengthInSeconds; }
 
-      void AddEventFinder(const EventFinder& evType);
+      void AddEventFinder(EventFinder* evType);
 
       void FindEvents();
 
@@ -33,7 +34,7 @@ namespace FindLaser {
       double fMemoryLength;
       double fMemoryLengthInSeconds;
       std::list<HistoryPoint> fPoints;
-      std::vector<EventFinder> fEventFinders;
+      std::vector<EventFinder*> fEventFinders;
       std::queue<Event> fEvents;
 
   }; // end class History

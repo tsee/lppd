@@ -14,6 +14,12 @@ namespace FindLaser {
   {
   }
 
+  History::~History()
+  {
+    for (unsigned int i = 0; i < fEventFinders.size(); i++)
+      delete fEventFinders[i];
+  }
+
   void History::AddPoint(const HistoryPoint& histPoint) {
     fPoints.push_back(histPoint);
   }
@@ -27,14 +33,14 @@ namespace FindLaser {
     return;
   }
 
-  void History::AddEventFinder(const EventFinder& evType) {
+  void History::AddEventFinder(EventFinder* evType) {
     // FIXME check for equality here
     fEventFinders.push_back(evType);
   }
 
   void History::FindEvents() {
     for (unsigned int i = 0; i < fEventFinders.size(); i++) {
-      const vector<Event>& ev = fEventFinders[i].Find(fPoints);
+      const vector<Event>& ev = fEventFinders[i]->Find(fPoints);
       for (unsigned int i = 0; i < ev.size(); i++) {
         fEvents.push(ev[i]);
       }
