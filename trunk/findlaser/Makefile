@@ -27,7 +27,7 @@ EXEBASE=sdl findLaser findLaserCapture geoCalib
 EXE=$(patsubst %,$(BIN_DIR)/%, $(EXEBASE))
 
 IMAGE_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,   /Color /Image /jpegstuff /GreyImage /ColorImage /GaussBlur)
-HISTORY_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, /HistoryPoint /History)
+HISTORY_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o, /HistoryPoint /History /Event /EventType)
 COMMON_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,  /Configuration /ImageCapture /GeometryCorrection) $(HISTORY_OBJECTS)
 GUI_OBJECTS=$(patsubst /%, $(OBJ_DIR)/%.o,  /Cursor)
 
@@ -63,6 +63,9 @@ $(BIN_DIR)/motion: nonbin
 # TESTS
 $(TEST_DIR)/testGeoTrans: nonbin
 	$(CXX) $(CXXFLAGS) $(COMMON_OBJECTS) $(TEST_DIR)/testGeoTrans.cc -o $@ $(LDFLAGS)
+
+$(TEST_DIR)/testHistory: nonbin
+	$(CXX) $(CXXFLAGS) $(COMMON_OBJECTS) $(TEST_DIR)/testHistory.cc -o $@ $(LDFLAGS)
 
 clean:
 	@rm -f $(OBJECTS) *~ core *.o *.so $(OBJ_DIR)/*.o
