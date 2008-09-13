@@ -1,7 +1,6 @@
 #ifndef __FindLaser__LocalSequenceEventFinder_h
 #define __FindLaser__LocalSequenceEventFinder_h
 
-#include <ctime>
 #include <vector>
 #include <list>
 #include "Event.h"
