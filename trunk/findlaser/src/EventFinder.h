@@ -10,7 +10,7 @@ namespace FindLaser {
   class HistoryPoint;
   class EventFinder {
     public:
-      virtual std::vector<Event> Find(const std::list<HistoryPoint>& points) = 0;
+      virtual std::vector<Event> Find(std::list<HistoryPoint>& points) = 0;
 
       virtual ~EventFinder() {};
 
