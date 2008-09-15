@@ -2,9 +2,9 @@ INCDIR=include
 LIBDIR=lib
 BINDIR=bin
 
-LDFLAGS += -ljpeg -fPIC -lstdc++ -lX11
+LDFLAGS += -ljpeg -fPIC -lstdc++ -lX11 -lpcrecpp
 LDFLAGS += -ggdb3
-SDL_LDFLAGS= -lSDL_image -lSDL_gfx -lSDL_ttf $(shell sdl-config --libs) 
+SDL_LDFLAGS = -lSDL_image -lSDL_gfx -lSDL_ttf $(shell sdl-config --libs) 
 CXXFLAGS += -fPIC $(shell sdl-config --cflags) -Isrc
 CXXFLAGS += -ggdb3
 #CXXFLAGS += -pg
