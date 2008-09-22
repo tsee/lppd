@@ -15,6 +15,8 @@ namespace FindLaser {
   
   class LocalSequenceEventFinder : public EventFinder {
     public:
+      LocalSequenceEventFinder();
+
       LocalSequenceEventFinder(
         const unsigned int repetitions,
         const unsigned int minTriggeredEvents,
@@ -25,6 +27,9 @@ namespace FindLaser {
       );
 
       virtual std::vector<Event> Find(std::list<HistoryPoint>& points);
+
+      int GetVerbosity() { return fVerbosity; }
+      void SetVerbosity(int verb) { fVerbosity = verb; }
 
       virtual ~LocalSequenceEventFinder();
 
@@ -52,6 +57,7 @@ namespace FindLaser {
       void ResetMatcher(Match& m);
       void StartMatcher(Match& m);
 
+      int fVerbosity;
       unsigned int fRepetitions;
       unsigned int fMinUntriggeredEvents;
       unsigned int fMinTriggeredEvents;
