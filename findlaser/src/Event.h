@@ -25,6 +25,12 @@ namespace FindLaser {
       PosEvent(const clock_t t, const double& x, const double& y);
       virtual ~PosEvent() {};
 
+      double GetX() { return fX; }
+      void GetX(const double x) { fX = x; }
+
+      double GetY() { return fY; }
+      void GetY(const double y) { fY = y; }
+
     private:
       double fX;
       double fY;
