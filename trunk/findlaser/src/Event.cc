@@ -12,4 +12,11 @@ namespace FindLaser {
   {
   }
 
+  PosEvent::PosEvent(const clock_t t, const double& x, const double& y)
+    : fX(x),
+    fY(y)
+  {
+    SetT(t);
+  }
+
 } // end namespace FindLaser
