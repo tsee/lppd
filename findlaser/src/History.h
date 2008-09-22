@@ -20,7 +20,7 @@ namespace FindLaser {
 
       void DiscardOldPoints();
 
-      void SetMemoryLength(const double seconds) { fMemoryLengthInSeconds = seconds; fMemoryLength = seconds/CLOCKS_PER_SEC; }
+      void SetMemoryLength(const double seconds) { fMemoryLengthInSeconds = seconds; fMemoryLength = seconds*CLOCKS_PER_SEC; }
       double GetMemoryLength() { return fMemoryLengthInSeconds; }
 
       void AddEventFinder(EventFinder* evType);
