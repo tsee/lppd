@@ -41,9 +41,8 @@ int main (int argc, char** argv) {
   h.FindEvents();
   std::queue<Event>& events = h.GetEvents();
 
-  if (events.empty()) {
+  if (events.empty())
     cout << "No events found!" << endl;
-  }
 
   while (!events.empty()) {
     Event* e = &(events.front());
