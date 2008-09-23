@@ -7,10 +7,16 @@
 #include "Configuration.h"
 #include "GeometryCorrection.h"
 
+#include "History.h"
+#include "HistoryPoint.h"
+#include "Event.h"
+#include "LocalSequenceEventFinder.h"
+
 #include <string>
 #include <vector>
+#include <queue>
 #include <iostream>
-
+#include <ctime>
 
 #include <X11/Xlib.h>
 #include <stdio.h>
@@ -58,7 +64,20 @@ int main (int argc, char**  argv) {
   Color green(0,255,0);
   Color blue(0,0,255);
 
-  const unsigned int screenSizeX = 1280, screenSizeY = 800;
+  History h;
+  LocalSequenceEventFinder* finder = new LocalSequenceEventFinder();
+  finder->SetVerbosity(5);
+  h.AddEventFinder((EventFinder*)finder);
+
+
+  const unsigned int screenSizeX = geoCorr->GetTargetImageWidth();
+  const unsigned int screenSizeY = geoCorr->GetTargetImageHeight();
+
+  // setup history
+  History history;
+  LocalSequenceEventFinder* clickFinder = new LocalSequenceEventFinder();
+  //clickFinder->SetVerbosity(5);
+  history.AddEventFinder((EventFinder*)clickFinder);
 
   double sLastCX = 0.;
   double sLastCY = 0.;
@@ -92,6 +111,8 @@ int main (int argc, char**  argv) {
     frame++;
     cerr << frame;
 
+    HistoryPoint* hPoint;
+    clock_t frameTime = clock();
     if (cx >= 0) {
       double relCX = (0.5*cx+0.3*lastCX+0.2*sLastCX) / imageSX;
       double relCY = (0.5*cy+0.3*lastCY+0.2*sLastCX) / imageSY;
@@ -112,7 +133,28 @@ int main (int argc, char**  argv) {
       XWarpPointer(display, None, root, 0, 0, 0, 0, screenCX, screenCY);
       XCloseDisplay(display);
       cerr << " " << cx << " " << cy << " - " << screenCX <<" " << screenCY;
-    } 
+
+      hPoint = new HistoryPoint(frameTime, x/screenSizeX, y/screenSizeY, true);
+    }
+    else
+      hPoint = new HistoryPoint(frameTime, -1., -1., false);
+
+    history.AddPoint(*hPoint);
+    delete hPoint;
+
+    // Process events!
+    history.FindEvents();
+    queue<Event> events = history.GetEvents();
+    while (!events.empty()) {
+      Event* e = &(events.front());
+      PosEvent* posE = dynamic_cast<PosEvent*>(e);
+      if (posE != NULL)
+        cout << "Got PosEvent, time: " << posE->GetT() << ", x: " << posE->GetX() << ", y: " << posE->GetY() << endl;
+      else
+        cout << "Got Event, time: " << e->GetT() << endl;
+      events.pop();
+    }
+    history.ClearEvents();
     
     cerr << endl;
   }
