@@ -65,6 +65,8 @@ namespace FindLaser {
       clock_t fMinPauseTime;
       clock_t fMaxPauseTime;
       clock_t fMinTotalTime;
+
+      clock_t fLastTriggeredTime;
   }; // end class LocalSequenceEventFinder
 
 } // end namespace FindLaser

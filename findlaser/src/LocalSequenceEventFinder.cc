@@ -19,7 +19,8 @@ namespace FindLaser {
     fMinOnTime(0.15*CLOCKS_PER_SEC),
     fMinPauseTime(0.15*CLOCKS_PER_SEC),
     fMaxPauseTime(1.00*CLOCKS_PER_SEC),
-    fVerbosity(0)
+    fVerbosity(0),
+    fLastTriggeredTime(0)
   {
     const clock_t repHalf = (clock_t) (fRepetitions / 2);
     fMinTotalTime = (repHalf+1) * fMinOnTime + repHalf*fMinPauseTime;
@@ -39,7 +40,8 @@ namespace FindLaser {
     fMinOnTime(minOnTime),
     fMinPauseTime(minPause),
     fMaxPauseTime(maxPause),
-    fVerbosity(0)
+    fVerbosity(0),
+    fLastTriggeredTime(0)
   {
     const clock_t repHalf = (clock_t) (fRepetitions / 2);
     fMinTotalTime = (repHalf+1) * fMinOnTime + repHalf*fMinPauseTime;
@@ -81,6 +83,10 @@ namespace FindLaser {
       cout << "Initialized matcher, starting the match" << endl;
 
     while (matcher.point != matcher.end) {
+      // skip ahead to last match
+      if (matcher.point->GetT() < fLastTriggeredTime)
+        continue;
+
       switch (matcher.state) {
         case NONE:
           MatcherHandleNone(matcher);
@@ -178,10 +184,11 @@ namespace FindLaser {
     // check whether we have a global match
     if (m.streaks >= fRepetitions && p.GetT() - m.matchStartTime > fMinTotalTime) {
       if (fVerbosity > 0)
-        cout << "MATCH! streaks: " << m.streaks << " of " << fRepetitions << " matchtime: " << p.GetT()-m.matchStartTime << " of " << fMinTotalTime << endl;
+        cout << "MATCH! streaks: " << m.streaks << " of " << fRepetitions << " matchtime: " << p.GetT()-m.matchStartTime << " of " << fMinTotalTime << " required" << endl;
       PosEvent event(p.GetT(), p.GetX(), p.GetY());
       m.events.push_back(event);
       ResetMatcher(m);
+      fLastTriggeredTime = p.GetT();
       return;
     }
 
