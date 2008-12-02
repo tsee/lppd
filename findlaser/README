@@ -17,4 +17,40 @@ and the corresponding headers are required.
 
 - X-libs               --> for setting the mouse cursor position
 
+- The "linux/videodev.h" header (Video4Linux if I remember correctly,
+                                 part of the kernel here.)
+
+
+INSTALLATION
+============
+
+- Install the dependencies.
+- run "make"
+- connect the camera
+- set up the camera so it can conceivable see the whole video
+  projector image.
+- If you have one, put the red-filter in front of the camera.
+  That improves the sensitivity *significantly*.
+- potentially edit settings.txt (refer to the code in
+  src/Configuration.* for the meaning) to adapt to your display and
+  camera resolution. For now, running the camera in 320x240 mode is
+  recommended.
+- run bin/sdl. You will get one camera image in a window.
+  Hit v (quickly, it repeats almost instantly) to go into continuous
+  mode. Use this to make the camera see the whole projected image with
+  as little distortion as possible. A slight vertical tilt should be
+  correctable.
+- Use the other keybindings to set up the brightness/contrast as well
+  as the laser pointer brightness and color thresholds.
+  (TODO -- document)
+  Use your laser pointer (NEEDS TO BE RED!)
+  for this and switch to color threshold or brightness threshold
+  view with 1/2/3. "a" toggles full screen. Beware of the feedback loop.
+- run bin/geoCalib to do the geometry calibration. Point the laser
+  at the small blue squares for some time. (Don't shake!)
+  Do this four times (for all corners).
+- run bin/findLaser. It will set your mouse cursor to the laser
+  pointer position.
+
+  
 
