@@ -1,0 +1,20 @@
+This is only the beginning of a README. Let's list the
+dependencies for now:
+
+DEPENDENCIES
+============
+
+All library dependencies imply that both the library
+and the corresponding headers are required.
+
+- libjpeg (jpeglib.h)  --> for processing the camera's images
+
+- SDL                  --> for displaying the calibration programs
+- SDL_image
+- SDL_ttf
+- SDL_rotozoom         (part of libsdl-gfx1.2-dev package in
+                        debian-based distributions)
+
+- X-libs               --> for setting the mouse cursor position
+
+
