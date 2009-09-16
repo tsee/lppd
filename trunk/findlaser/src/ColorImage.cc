@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <cstdlib>
 
 using std::cout;
 using std::cerr;

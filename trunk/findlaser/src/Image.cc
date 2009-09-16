@@ -1,4 +1,6 @@
 #include "Image.h"
+#include <cstdlib>
+#include <cstring>
 
 namespace FindLaser {
   Image::Image() : fColumns(0), fImage(0), fRows(0) {
