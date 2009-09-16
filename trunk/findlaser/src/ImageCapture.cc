@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 using std::string;
 using std::cout;
@@ -18,6 +19,7 @@ using std::endl;
 
 #include <linux/types.h>
 #include <linux/videodev.h>
+
 namespace FindLaser {
   ImageCapture::ImageCapture(string device)
     : fDevice(device), fError(""), fInitialized(false), fFd(-1), fBuffer(NULL), fVerbosity(0)
@@ -53,7 +55,11 @@ namespace FindLaser {
     fVPicture.palette=VIDEO_PALETTE_RGB24;
 
     if (!SetVideoPicture()) {
-      fError = "Setting video picture to RGB24 mode failed.";
+      std::ostringstream o;
+      o << "Setting video picture to RGB24 mode failed.";
+      if (!fError.length() == 0)
+	o << "Reason: '" << fError << "'";
+      fError = o.str();
       return false;
     }
 
