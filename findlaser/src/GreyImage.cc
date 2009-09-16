@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 using std::cout;
 using std::cerr;
