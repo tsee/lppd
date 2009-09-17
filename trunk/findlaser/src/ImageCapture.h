@@ -44,7 +44,7 @@ namespace FindLaser {
       std::string fError;
       bool fInitialized;
       int fFd; /// The device file descriptor
-      struct video_capability fCapability;
+      struct v4l2_capability fCapability;
       struct video_window fWindow;
       struct video_picture fVPicture;
       
