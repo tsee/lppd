@@ -125,11 +125,11 @@ namespace FindLaser {
 
   bool CheckAndResetImageFormat() {
     if (!GetImageFormat()) return false;
-    fImageFormat.pix.pixelformat  = V4L2_PIX_FMT_RGB24; // format, see http://v4l2spec.bytesex.org/spec/c2030.htm#V4L2-PIX-FORMAT
-    fImageFormat.pix.width        = 320; // safe default?
-    fImageFormat.pix.height       = 240; // safe default?
-    fImageFormat.pix.bytesperline = 0; // no padding, get default
-    // FIXME: Need to check the interlacing via ".pix.field"?
+    fImageFormat.fmt.pix.pixelformat  = V4L2_PIX_FMT_RGB24; // format, see http://v4l2spec.bytesex.org/spec/c2030.htm#V4L2-PIX-FORMAT
+    fImageFormat.fmt.pix.width        = 320; // safe default?
+    fImageFormat.fmt.pix.height       = 240; // safe default?
+    fImageFormat.fmt.pix.bytesperline = 0; // no padding, get default
+    // FIXME: Need to check the interlacing via ".fmt.pix.field"?
     
     return SetImageFormat();
   }
@@ -191,8 +191,8 @@ namespace FindLaser {
     // no checking of max width and height because that's not supported by v4l2.
     // Instead, we could use V4L2_TRY_FMT to TRY the desired setup first. Laziness prevails.
 
-    fImageFormat.pix.width  = width;
-    fImageFormat.pix.height = height;
+    fImageFormat.fmt.pix.width  = width;
+    fImageFormat.fmt.pix.height = height;
     return SetImageFormat();
   }
 
@@ -208,7 +208,7 @@ namespace FindLaser {
     do {
       int newbright;
       CaptureImagePointer(size); // writes to fBuffer
-      f = GetBrightnessAdjustment(fBuffer, fImageFormat.pix.width * fImageFormat.pix.height, &newbright);
+      f = GetBrightnessAdjustment(fBuffer, fImageFormat.fmt.pix.width * fImageFormat.fmt.pix.height, &newbright);
       if (f) {
         // FIXME: a) check correctness, b) lose ugly constants
         const float relBrightness = (GetRelBrightness()*65536. + (newbright << 8))/65536.;
