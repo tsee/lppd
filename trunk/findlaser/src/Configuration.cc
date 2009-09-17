@@ -11,17 +11,13 @@ using namespace std;
 
 namespace FindLaser {
 
-  const unsigned int Configuration::fgCameraBrightnessMin    = 0;
-  const unsigned int Configuration::fgCameraBrightnessMax    = 65535;
-  const unsigned int Configuration::fgCameraContrastMin      = 0;
-  const unsigned int Configuration::fgCameraContrastMax      = 65535;
   const unsigned int Configuration::fgBrightnessThresholdMin = 0;
   const unsigned int Configuration::fgBrightnessThresholdMax = 255;
   const unsigned int Configuration::fgColorThresholdMin      = 0;
   const unsigned int Configuration::fgColorThresholdMax      = 255;
 
   Configuration::Configuration(const string& fileName)
-    : fCameraBrightness(32000), fCameraContrast(32000),
+    : fCameraBrightness(0.5), fCameraContrast(0.5),
       fBrightnessThreshold(120), fColorThreshold(120),
       fCameraImageSizeX(320), fCameraImageSizeY(240),
       fGeometryCorrection(NULL)
@@ -59,11 +55,11 @@ namespace FindLaser {
 
     if (!fileHandle.good()) return false;
     fileHandle >> value;
-    SetCameraBrightness(atoi(value.c_str()));
+    SetCameraBrightness(atof(value.c_str()));
 
     if (!fileHandle.good()) return false;
     fileHandle >> value;
-    SetCameraContrast(atoi(value.c_str()));
+    SetCameraContrast(atof(value.c_str()));
 
     if (!fileHandle.good()) return false;
     fileHandle >> value;
@@ -134,8 +130,8 @@ namespace FindLaser {
     fGeometryCorrection->GetImageCornersClockwise(corners);
 
     fileHandle  << GetCameraImageSizeX()    << "\t" << GetCameraImageSizeY()    << "\n"
-                << GetCameraBrightness()    << "\n"
-                << GetCameraContrast()      << "\n"
+                << GetCameraRelBrightness() << "\n"
+                << GetCameraRelContrast()   << "\n"
                 << GetBrightnessThreshold() << "\n"
                 << GetColorThreshold()      << "\n"
                 << GetCameraDevice()        << "\n"
@@ -153,22 +149,22 @@ namespace FindLaser {
     fGeometryCorrection = g;
   }
 
-  void Configuration::SetCameraBrightness(const int camBr) {
-    if (camBr < fgCameraBrightnessMin)
-      fCameraBrightness = fgCameraBrightnessMin;
-    else if (camBr > fgCameraBrightnessMax)
-      fCameraBrightness = fgCameraBrightnessMax;
+  void Configuration::SetCameraRelBrightness(const float camRelBr) {
+    if (camRelBr < 0.)
+      fCameraBrightness = 0.;
+    else if (camRelBr > 1.)
+      fCameraBrightness = 1.;
     else
-      fCameraBrightness = camBr;
+      fCameraBrightness = camRelBr;
   }
 
-  void Configuration::SetCameraContrast(const int camCo) {
-    if (camCo < fgCameraContrastMin)
-      fCameraContrast = fgCameraContrastMin;
-    else if (camCo > fgCameraContrastMax)
-      fCameraContrast = fgCameraContrastMax;
+  void Configuration::SetCameraRelContrast(const float camRelCo) {
+    if (camRelCo < 0.)
+      fCameraContrast = 0.;
+    else if (camCo > 1.)
+      fCameraContrast = 1.;
     else
-      fCameraContrast = camCo;
+      fCameraContrast = camRelCo;
   }
 
   void Configuration::SetBrightnessThreshold(const double briThr) {
