@@ -234,10 +234,11 @@ namespace FindLaser {
   unsigned char* ImageCapture::CaptureImagePointer(unsigned int& size) {
     if (!fInitialized)
       return NULL;
-    size = fWindow.width * fWindow.height * 24/8;
+// FIXME: implement reading in v4l2
+/*    size = fWindow.width * fWindow.height * 24/8;
 
     read(fFd, fBuffer, size);
-
+*/
     return fBuffer;
   }
   
@@ -247,7 +248,7 @@ namespace FindLaser {
     control.value = value;
 
     if (-1 == ioctl(fFd, VIDIOC_S_CTRL, &control)) {
-      ostringstream o;
+      std::ostringstream o;
       o << "Error setting control with id '" << id << " to value " << value;
       fError = o.str();
       return false;
@@ -261,7 +262,7 @@ namespace FindLaser {
     control.value = 0;
 
     if (-1 == ioctl(fFd, VIDIOC_G_CTRL, &control)) {
-      ostringstream o;
+      std::ostringstream o;
       o << "Error Getting control with id '" << id;
       fError = o.str();
       return -1;
