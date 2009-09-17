@@ -117,7 +117,7 @@ int main()
   }
   */
 
-  cap.SetCaptureProperties(cfg.GetCameraBrightness(), cfg.GetCameraContrast());
+  cap.SetCaptureProperties(cfg.GetCameraRelBrightness(), cfg.GetCameraRelContrast());
 
   // Color objects for color projection
   Color red(255,0,0);
@@ -303,28 +303,24 @@ int main()
                         + string(" / ") + stringify(cfg.GetBrightnessThresholdMax());
           break;
         case SDLK_u:
-          cfg.SetCameraBrightness( cfg.GetCameraBrightness() + keyaccel*50 );
-          cap.SetBrightness( cfg.GetCameraBrightness() );
-          displayText = string("Camera Brightness: ") + stringify(cfg.GetCameraBrightness())
-                        + string(" / ") + stringify(cfg.GetCameraBrightnessMax());
+          cfg.SetCameraRelBrightness( cfg.GetCameraRelBrightness() + keyaccel*0.002 );
+          cap.SetRelBrightness( cfg.GetCameraRelBrightness() );
+          displayText = string("rel. Camera Brightness: ") + stringify(cfg.GetCameraRelBrightness());
           break;
         case SDLK_j:
-          cfg.SetCameraBrightness( cfg.GetCameraBrightness() - keyaccel*50 );
-          cap.SetBrightness( cfg.GetCameraBrightness() );
-          displayText = string("Camera Brightness: ") + stringify(cfg.GetCameraBrightness())
-                        + string(" / ") + stringify(cfg.GetCameraBrightnessMax());
+          cfg.SetCameraRelBrightness( cfg.GetCameraRelBrightness() - keyaccel*0.002 );
+          cap.SetRelBrightness( cfg.GetCameraRelBrightness() );
+          displayText = string("rel. Camera Brightness: ") + stringify(cfg.GetCameraRelBrightness());
           break;
         case SDLK_i:
-          cfg.SetCameraContrast( cfg.GetCameraContrast() + keyaccel*200 );
-          cap.SetContrast( cfg.GetCameraContrast() );
-          displayText = string("Camera Contrast: ") + stringify(cfg.GetCameraContrast())
-                        + string(" / ") + stringify(cfg.GetCameraContrastMax());
+          cfg.SetCameraRelContrast( cfg.GetCameraRelContrast() + keyaccel*0.01 );
+          cap.SetRelContrast( cfg.GetCameraRelContrast() );
+          displayText = string("rel. Camera Contrast: ") + stringify(cfg.GetCameraRelContrast());
           break;
         case SDLK_k:
-          cfg.SetCameraContrast( cfg.GetCameraContrast() - keyaccel*200 );
-          cap.SetContrast( cfg.GetCameraContrast() );
-          displayText = string("Camera Contrast: ") + stringify(cfg.GetCameraContrast())
-                        + string(" / ") + stringify(cfg.GetCameraContrastMax());
+          cfg.SetCameraRelContrast( cfg.GetCameraRelContrast() - keyaccel*0.01 );
+          cap.SetRelContrast( cfg.GetCameraRelContrast() );
+          displayText = string("rel. Camera Contrast: ") + stringify(cfg.GetCameraRelContrast());
           break;
         case SDLK_c:
           capture = true;
