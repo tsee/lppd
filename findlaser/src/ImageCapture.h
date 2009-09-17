@@ -38,10 +38,10 @@ namespace FindLaser {
       int GetBrightnessAdjustment(unsigned char* image, long size, int* brightness);
 
       unsigned int fVerbosity;
-      std::string fDevice;
+      std::string fDevice; /// The path to the device, i.e. /dev/video
       std::string fError;
       bool fInitialized;
-      int fFd;
+      int fFd; /// The device file descriptor
       struct video_capability fCapability;
       struct video_window fWindow;
       struct video_picture fVPicture;

@@ -36,7 +36,7 @@ namespace FindLaser {
   }
 
   bool ImageCapture::Initialize() {
-    fFd = open(fDevice.c_str(), O_RDONLY);
+    fFd = open(fDevice.c_str(), O_RDONLY); // investigate O_NONBLOCK
     if (fFd < 0) {
       fError = string("Could not open device ") + fDevice;
       return false;
