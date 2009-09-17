@@ -40,6 +40,7 @@ namespace FindLaser {
     }
 
     if (!GetCapability()) return false;
+    if (!ResetCrop()) return false;
     if (!GetWindow()) return false;
     if (!GetVideoPicture()) return false;
     
@@ -55,7 +56,7 @@ namespace FindLaser {
       std::ostringstream o;
       o << "Setting video picture to RGB24 mode failed.";
       if (!fError.length() == 0)
-	o << "Reason: '" << fError << "'";
+        o << "Reason: '" << fError << "'";
       fError = o.str();
       return false;
     }
@@ -75,6 +76,33 @@ namespace FindLaser {
       return false;
     }
     // TODO for future: Potentially use streaming. Hint: V4L2_CAP_STREAMING
+    return true;
+  }
+
+  bool ImageCapture::ResetCrop() {
+    // From v4l2 reference, example 1-11 (Chapter 1-11)
+    struct v4l2_cropcap cropcap;
+    struct v4l2_crop crop;
+
+    memset(&cropcap, 0, sizeof(cropcap));
+    cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    if (-1 == ioctl(fd, VIDIOC_CROPCAP, &cropcap)) {
+      fError = "VIDIOC_CROPCAP failed";
+      return false;
+    }
+
+    memset(&crop, 0, sizeof(crop));
+    crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    crop.c = cropcap.defrect; 
+
+    /* Ignore if cropping is not supported (EINVAL). */
+    if (-1 == ioctl(fd, VIDIOC_S_CROP, &crop)
+        && errno != EINVAL)
+    {
+      fError = "VIDIOC_S_CROP failed";
+      return false;
+    }
     return true;
   }
 
