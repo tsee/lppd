@@ -141,16 +141,19 @@ namespace FindLaser {
 
   bool ImageCapture::GetImageFormat() {
     memset(&fImageFormat, 0, sizeof(fImageFormat)); // reset memory
+    fImageFormat.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (-1 == ioctl(fFd, VIDIOC_G_FMT, &fImageFormat)) {
       if (errno != EINVAL) {
         fError = string("Failed doing a VIDIOC_G_FMT for fetching the image format");
         return false;
       } else {
-        fError = string("Failed doing a VIDIOC_G_FMT for fetching the image format");
+        fError = string("Failed doing a VIDIOC_G_FMT for fetching the image format (errno == EINVAL)");
         return false;
       }
     }
     return true;
+
+    ReallocBuffer();
   }
 
   bool ImageCapture::SetImageFormat() {
@@ -161,6 +164,16 @@ namespace FindLaser {
       fError = string("Failed doing a VIDIOC_S_FMT for setting the image format");
       return false;
     }
+
+    // FIXME: Do we need a GetImageFormat to get potentially driver-modified settings back?
+    ReallocBuffer();
+    return true;
+  }
+
+  void ImageCapture::ReallocBuffer() {
+    if (fBuffer != NULL)
+      free(fBuffer);
+    fBuffer = (unsigned char*)malloc(fImageFormat.fmt.pix.width*fImageFormat.fmt.pix.height*24/8);
   }
 
   bool ImageCapture::ResetCrop() {
@@ -239,11 +252,10 @@ namespace FindLaser {
   unsigned char* ImageCapture::CaptureImagePointer(unsigned int& size) {
     if (!fInitialized)
       return NULL;
-// FIXME: implement reading in v4l2
-/*    size = fWindow.width * fWindow.height * 24/8;
+    size = fImageFormat.fmt.pix.width * fImageFormat.fmt.pix.height * 24/8;
 
-    read(fFd, fBuffer, size);
-*/
+    const size_t nread = read(fFd, fBuffer, size);
+
     return fBuffer;
   }
   
