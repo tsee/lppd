@@ -70,6 +70,10 @@ namespace FindLaser {
                + fDevice + string(" not a V4L2 device?");
       return false;
     }
+    if (!fCapability & V4L2_CAP_VIDEO_CAPTURE) {
+      fError = "Device doesn't seem to support video capture.";
+      return false;
+    }
     return true;
   }
 
