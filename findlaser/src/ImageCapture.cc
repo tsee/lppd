@@ -135,7 +135,6 @@ namespace FindLaser {
     fImageFormat.fmt.pix.height       = 240; // safe default?
     fImageFormat.fmt.pix.bytesperline = 0; // no padding, get default
     // FIXME: Need to check the interlacing via ".fmt.pix.field"?
-    
     return SetImageFormat();
   }
 
@@ -151,15 +150,22 @@ namespace FindLaser {
         return false;
       }
     }
-    return true;
+    //fImageFormat.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    cout << fImageFormat.fmt.pix.pixelformat << endl;
+    cout << V4L2_PIX_FMT_RGB555 << endl;
+    cout << V4L2_PIX_FMT_YUYV << endl;
+    //fImageFormat.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
 
     ReallocBuffer();
+    return true;
   }
 
   bool ImageCapture::SetImageFormat() {
-    if (!fInitialized)
-      return false;
-
+    //fImageFormat.fmt.pix.field = V4L2_FIELD_INTERLACED;
+    //fImageFormat.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+    //fImageFormat.fmt.pix.width = 352;
+    //fImageFormat.fmt.pix.height= 288;
+    
     if (-1 == ioctl(fFd, VIDIOC_S_FMT, &fImageFormat)) {
       fError = string("Failed doing a VIDIOC_S_FMT for setting the image format");
       return false;
