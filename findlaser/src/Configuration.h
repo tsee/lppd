@@ -18,10 +18,10 @@ namespace FindLaser {
       unsigned int GetCameraImageSizeY() { return fCameraImageSizeY; }
       void SetCameraImageSizeY(const unsigned int sizeY) { fCameraImageSizeY = sizeY; }
 
-      int GetCameraBrightness() { return fCameraBrightness; }
-      void SetCameraBrightness(const int camBr);
-      int GetCameraContrast() { return fCameraContrast; }
-      void SetCameraContrast(const int camCo);
+      float GetCameraRelBrightness() { return fCameraBrightness; }
+      void SetCameraRelBrightness(const float camRelBr);
+      float GetCameraRelContrast() { return fCameraContrast; }
+      void SetCameraRelContrast(const float camRelCo);
 
       double GetBrightnessThreshold() { return fBrightnessThreshold; }
       void SetBrightnessThreshold(const double briThr);
@@ -37,11 +37,6 @@ namespace FindLaser {
       GeometryCorrection* GetGeometryCorrection() { return fGeometryCorrection; }
       void SetGeometryCorrection(GeometryCorrection* g);
 
-      int GetCameraBrightnessMin() { return fgCameraBrightnessMin; }
-      int GetCameraBrightnessMax() { return fgCameraBrightnessMax; }
-      int GetCameraContrastMin() { return fgCameraContrastMin; }
-      int GetCameraContrastMax() { return fgCameraContrastMax; }
-
       int GetBrightnessThresholdMin() { return fgBrightnessThresholdMin; }
       int GetBrightnessThresholdMax() { return fgBrightnessThresholdMax; }
       int GetColorThresholdMin() { return fgColorThresholdMin; }
@@ -50,10 +45,6 @@ namespace FindLaser {
     private:
       bool ReadConfiguration();
 
-      const static unsigned int fgCameraBrightnessMin;
-      const static unsigned int fgCameraBrightnessMax;
-      const static unsigned int fgCameraContrastMin;
-      const static unsigned int fgCameraContrastMax;
       const static unsigned int fgBrightnessThresholdMin;
       const static unsigned int fgBrightnessThresholdMax;
       const static unsigned int fgColorThresholdMin;
@@ -62,8 +53,8 @@ namespace FindLaser {
       std::string fFileName;
       unsigned int fCameraImageSizeX;
       unsigned int fCameraImageSizeY;
-      int fCameraBrightness;
-      int fCameraContrast;
+      float fCameraBrightness;
+      float fCameraContrast;
       double fBrightnessThreshold;
       double fColorThreshold;
       std::string fCameraDevice;
