@@ -83,10 +83,7 @@ namespace FindLaser {
 
   bool ImageCapture::CheckAndResetControls() {
     // Adapted from v4l2 reference, example 1-9 (Chapter 1-8)
-    struct v4l2_queryctrl queryctrl;
     struct v4l2_control control;
-
-    memset(&queryctrl, 0, sizeof(queryctrl));
     memset(&control, 0, sizeof(control));
 
     const unsigned int nControls = 2;
@@ -98,8 +95,14 @@ namespace FindLaser {
       "brightness",
       "contrast"
     };
+    struct v4l2_queryctrl[nControls] queryctrls = {
+      &fBrightnessQuery,
+      &fContrastQuery
+    };
 
-    for (unsigned int iControl = 0; iControl < nControls; ++i) {
+    for (unsigned int iControl = 0; iControl < nControls; ++iControl) {
+      struct v4l2_queryctrl& queryctrl = queryctrls[iControl];
+      memset(&queryctrl, 0, sizeof(queryctrl));
       __u32 controlId = controlIds[iControl];
       queryctrl.id = controlId;
 
@@ -224,23 +227,31 @@ namespace FindLaser {
     return fError;
   }
 
-  bool ImageCapture::SetBrightness(unsigned int brightness) {
-    return SetControl(V4L2_CID_BRIGHTNESS, (__s32) brightness);
+  bool ImageCapture::SetRelBrightness(float relBrightness) {
+    __u32 min = fBrightnessQuery.minimum;
+    float brightness = min + (fBrightnessQuery.maximum-min)*relBrightness;
+    return SetControl(V4L2_CID_BRIGHTNESS, (__s32)brightness);
   }
 
-  bool ImageCapture::SetContrast(unsigned int contrast) {
-    return SetControl(V4L2_CID_CONTRAST, (__s32) contrast);
+  bool ImageCapture::SetRelContrast(float relContrast) {
+    __u32 min = fContrastQuery.minimum;
+    float contrast = min + (fContrastQuery.maximum-min)*relContrast;
+    return SetControl(V4L2_CID_CONTRAST, (__s32)contrast);
   }
 
-  unsigned int ImageCapture::GetBrightness() {
-    return (unsigned int) GetControl(V4L2_CID_BRIGHTNESS);
+  float ImageCapture::GetRelBrightness() {
+    __u32 min = fBrightnessQuery.minimum;
+    float reduced = GetControl(V4L2_CID_BRIGHTNESS)-min;
+    return reduced / (float)(fBrightnessQuery.maximum - min);
   }
 
-  unsigned int ImageCapture::GetContrast() {
-    return (unsigned int) GetControl(V4L2_CID_CONTRAST);
+  unsigned int ImageCapture::GetRelContrast() {
+    __u32 min = fContrastQuery.minimum;
+    float reduced = GetControl(V4L2_CID_CONTRAST)-min;
+    return reduced / (float)(fContrastQuery.maximum - min);
   }
 
-  bool ImageCapture::SetCaptureProperties(unsigned int brightness, unsigned int contrast) {
+  bool ImageCapture::SetCaptureProperties(float relBrightness, float relContrast) {
     bool success = SetBrightness(brightness);
     success = SetContrast(contrast) && success;
     return success;
