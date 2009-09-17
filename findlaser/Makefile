@@ -38,6 +38,9 @@ all: $(OBJECTS) bin test $(BIN_DIR)/motion
 $(OBJ_DIR)/%.o: $(SOURCES)
 	$(CXX) -o $@ -c $(SRC_DIR)/$*.cc $(CXXFLAGS)
 
+$(OBJ_DIR):
+	mkdir $(OBJ_DIR)
+
 nonbin: $(OBJECTS)
 
 bin: nonbin $(EXE)
