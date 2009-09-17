@@ -52,9 +52,9 @@ int main (int argc, char**  argv) {
   }
   */
 
-  cap.SetCaptureProperties(cfg.GetCameraBrightness(), cfg.GetCameraContrast());
-  cout << "Brightness:           " << cap.GetBrightness()    << endl;
-  cout << "Contrast:             " << cap.GetContrast()    << endl;
+  cap.SetCaptureProperties(cfg.GetCameraRelBrightness(), cfg.GetCameraRelContrast());
+  cout << "rel. Brightness:      " << cap.GetRelBrightness()    << endl;
+  cout << "rel. Contrast:        " << cap.GetRelContrast()    << endl;
   const double thresholdLight = cfg.GetBrightnessThreshold();
   const double thresholdColor = cfg.GetColorThreshold();
   cout << "Brightness threshold: " << thresholdLight    << endl;
