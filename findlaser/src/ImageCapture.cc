@@ -33,7 +33,7 @@ namespace FindLaser {
   }
 
   bool ImageCapture::Initialize() {
-    fFd = open(fDevice.c_str(), O_RDWR); // investigate O_NONBLOCK
+    fFd = open(fDevice.c_str(), O_RDWR); // TODO investigate O_NONBLOCK
     if (fFd < 0) {
       fError = string("Could not open device ") + fDevice;
       return false;
@@ -227,36 +227,6 @@ namespace FindLaser {
     return fError;
   }
 
-  bool ImageCapture::SetRelBrightness(float relBrightness) {
-    __u32 min = fBrightnessQuery.minimum;
-    float brightness = min + (fBrightnessQuery.maximum-min)*relBrightness;
-    return SetControl(V4L2_CID_BRIGHTNESS, (__s32)brightness);
-  }
-
-  bool ImageCapture::SetRelContrast(float relContrast) {
-    __u32 min = fContrastQuery.minimum;
-    float contrast = min + (fContrastQuery.maximum-min)*relContrast;
-    return SetControl(V4L2_CID_CONTRAST, (__s32)contrast);
-  }
-
-  float ImageCapture::GetRelBrightness() {
-    __u32 min = fBrightnessQuery.minimum;
-    float reduced = GetControl(V4L2_CID_BRIGHTNESS)-min;
-    return reduced / (float)(fBrightnessQuery.maximum - min);
-  }
-
-  unsigned int ImageCapture::GetRelContrast() {
-    __u32 min = fContrastQuery.minimum;
-    float reduced = GetControl(V4L2_CID_CONTRAST)-min;
-    return reduced / (float)(fContrastQuery.maximum - min);
-  }
-
-  bool ImageCapture::SetCaptureProperties(float relBrightness, float relContrast) {
-    bool success = SetBrightness(brightness);
-    success = SetContrast(contrast) && success;
-    return success;
-  }
-
   bool ImageCapture::AdjustBrightness() {
     if (!fInitialized) return false;
 
@@ -276,11 +246,12 @@ namespace FindLaser {
     return true;
   }
 
+  /// Internal aux. method for AdjustBrightness
   int ImageCapture::GetBrightnessAdjustment(unsigned char *image, long size, int *brightness) {
     long i, tot = 0;
-    for (i=0;i<size*3;i++)
+    for (i = 0; i < size*3; ++i)
       tot += image[i];
-    *brightness = (128 - tot/(size*3))/3;
+    *brightness = (128 - tot/(size*3)) / 3;
     return !((tot/(size*3)) >= 122 && (tot/(size*3)) <= 134);
     //return !((tot/(size*3)) >= 126 && (tot/(size*3)) <= 130);
   }
@@ -321,6 +292,39 @@ namespace FindLaser {
       return -1;
     }
     return control.value;
+  }
+
+  /*******************************************************
+   * Getters and setters
+   */
+  bool ImageCapture::SetRelBrightness(float relBrightness) {
+    __u32 min = fBrightnessQuery.minimum;
+    float brightness = min + (fBrightnessQuery.maximum-min)*relBrightness;
+    return SetControl(V4L2_CID_BRIGHTNESS, (__s32)brightness);
+  }
+
+  bool ImageCapture::SetRelContrast(float relContrast) {
+    __u32 min = fContrastQuery.minimum;
+    float contrast = min + (fContrastQuery.maximum-min)*relContrast;
+    return SetControl(V4L2_CID_CONTRAST, (__s32)contrast);
+  }
+
+  float ImageCapture::GetRelBrightness() {
+    __u32 min = fBrightnessQuery.minimum;
+    float reduced = GetControl(V4L2_CID_BRIGHTNESS)-min;
+    return reduced / (float)(fBrightnessQuery.maximum - min);
+  }
+
+  unsigned int ImageCapture::GetRelContrast() {
+    __u32 min = fContrastQuery.minimum;
+    float reduced = GetControl(V4L2_CID_CONTRAST)-min;
+    return reduced / (float)(fContrastQuery.maximum - min);
+  }
+
+  bool ImageCapture::SetCaptureProperties(float relBrightness, float relContrast) {
+    bool success = SetBrightness(brightness);
+    success = SetContrast(contrast) && success;
+    return success;
   }
 
 } // end namespace findlaser

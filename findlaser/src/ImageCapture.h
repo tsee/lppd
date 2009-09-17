@@ -15,19 +15,18 @@ namespace FindLaser {
       void SetVerbosity(const unsigned int verb) { fVerbosity = verb; }
       bool Initialize();
 
-      std::string GetError();
+      std::string GetError(); /// Returns the current error string
 
-      bool AdjustBrightness();
+      bool AdjustBrightness(); /// Auto-adjust brightness
 
       bool SetImageSize(unsigned int width, unsigned int height);
 
-      bool SetRelBrightness(float relBrightness); /// Set the desired brightness
-      bool SetRelContrast(float relContrast); /// Set the desired contrast
+      bool SetRelBrightness(float relBrightness); /// Set the desired brightness [0,1]
+      bool SetRelContrast(float relContrast); /// Set the desired contrast [0,1]
+      float GetRelBrightness(); /// Fetch the current brightness [0,1]
+      float GetRelContrast(); /// Fetch the current contrast [0,1]
+
       bool SetCaptureProperties(float relBrightness, float relContrast); /// Set brightness and contrast
-
-      float GetRelBrightness();
-      float GetRelContrast();
-
 
       unsigned char* CaptureImagePointer(unsigned int& size);
 
@@ -47,7 +46,7 @@ namespace FindLaser {
 
       unsigned int fVerbosity;
       std::string fDevice; /// The path to the device, i.e. /dev/video
-      std::string fError;
+      std::string fError; /// The current error string
       bool fInitialized;
       int fFd; /// The device file descriptor
       struct v4l2_capability fVCapability;
