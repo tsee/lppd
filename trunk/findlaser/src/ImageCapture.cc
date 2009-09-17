@@ -19,7 +19,7 @@ using std::endl;
 
 namespace FindLaser {
   ImageCapture::ImageCapture(string device)
-    : fDevice(device), fError(""), fInitialized(false), fFd(-1), fBuffer(NULL), fVerbosity(0)
+    : fVerbosity(0), fDevice(device), fError(""), fInitialized(false), fFd(-1), fBuffer(NULL)
   {
   }
 
