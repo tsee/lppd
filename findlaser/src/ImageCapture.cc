@@ -123,7 +123,7 @@ namespace FindLaser {
     return true;
   }
 
-  bool CheckAndResetImageFormat() {
+  bool ImageCapture::CheckAndResetImageFormat() {
     if (!GetImageFormat()) return false;
     fImageFormat.fmt.pix.pixelformat  = V4L2_PIX_FMT_RGB24; // format, see http://v4l2spec.bytesex.org/spec/c2030.htm#V4L2-PIX-FORMAT
     fImageFormat.fmt.pix.width        = 320; // safe default?
