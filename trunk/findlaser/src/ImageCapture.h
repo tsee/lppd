@@ -36,11 +36,12 @@ namespace FindLaser {
       bool GetCapability(); /// fetch the v4l2 device capabilities as fCapability
       bool ResetCrop(); /// Reset the v4l2 crop settings of the device since they're persistent
       bool CheckAndResetControls(); /// Checks the availability of the required controls and sets them to their default value
-      bool GetWindow();
-      bool SetWindow();
-      bool GetVideoPicture();
-      bool SetVideoPicture();
-      int GetBrightnessAdjustment(unsigned char* image, long size, int* brightness);
+      bool CheckAndResetImageFormat(); /// Does the initial (safe) settings for the image format and size
+
+      bool GetImageFormat(); /// Fetch the initial image format settings from the device (done during initialization)
+      bool SetImageFormat(); /// Set the devices image format settings
+
+      int GetBrightnessAdjustment(unsigned char* image, long size, int* brightness); /// helper for AdjustBrightness
 
       bool SetControl(__u32 id, __s32 value); /// Set a control value (brightness, contrast...)
       __s32 GetControl(__u32 id); /// Get a control value (brightness, contrast...)
@@ -53,10 +54,7 @@ namespace FindLaser {
       struct v4l2_capability fVCapability; /// Describes the capability of the video hardware (done during initialization)
       struct v4l2_queryctrl fBrightnessQuery; /// The general query about the brightness control containing min/max (done during initialization)
       struct v4l2_queryctrl fContrastQuery; /// The general query about the contrast control containing min/max (done during initialization)
-      struct v4l2_pix_format fPixFormat; /// The general query about the contrast control containing min/max (done during initialization)
-
-      //struct video_window fWindow;
-      //struct video_picture fVPicture;
+      struct v4l2_format fImageFormat; /// Image format info (fetched during initialization)
       
       unsigned char* fBuffer;
   };

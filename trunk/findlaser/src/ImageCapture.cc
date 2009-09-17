@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
+#include <cstring>
 
 using std::string;
 using std::cout;
@@ -41,27 +43,14 @@ namespace FindLaser {
 
     if (!GetCapability()) return false;
     if (!ResetCrop()) return false;
-    if (!GetWindow()) return false;
-    if (!GetVideoPicture()) return false;
+    if (!CheckAndResetImageFormat()) return false;
+    if (!CheckAndResetControls()) return false;
     
     // FIXME replace with v4l2 equivalent or delete?
     /*if (fVCapability.type & VID_TYPE_MONOCHROME) {
       fError = "Seems to be a monochrome camera. We don't support those at the moment.";
       return false;
     }*/
-
-    fVPicture.depth=24;
-    fVPicture.palette=VIDEO_PALETTE_RGB24;
-    // V4L2_PIX_FMT_RGB24
-
-    if (!SetVideoPicture()) {
-      std::ostringstream o;
-      o << "Setting video picture to RGB24 mode failed.";
-      if (!fError.length() == 0)
-        o << "Reason: '" << fError << "'";
-      fError = o.str();
-      return false;
-    }
 
     fInitialized = true;
     return true;
@@ -91,11 +80,11 @@ namespace FindLaser {
       V4L2_CID_BRIGHTNESS, V4L2_CID_CONTRAST
     };
     // FIXME: These are certainly provided by v4l2
-    char* controlNames[nControls] = {
+    const char* controlNames[nControls] = {
       "brightness",
       "contrast"
     };
-    struct v4l2_queryctrl[nControls] queryctrls = {
+    struct v4l2_queryctrl queryctrls[nControls] = {
       &fBrightnessQuery,
       &fContrastQuery
     };
@@ -129,6 +118,41 @@ namespace FindLaser {
     }
 
     return true;
+  }
+
+  bool CheckAndResetImageFormat() {
+    if (!GetImageFormat()) return false;
+    fImageFormat.pix.pixelformat  = V4L2_PIX_FMT_RGB24; // format, see http://v4l2spec.bytesex.org/spec/c2030.htm#V4L2-PIX-FORMAT
+    fImageFormat.pix.width        = 320; // safe default?
+    fImageFormat.pix.height       = 240; // safe default?
+    fImageFormat.pix.bytesperline = 0; // no padding, get default
+    // FIXME: Need to check the interlacing via ".pix.field"?
+    
+    return SetImageFormat();
+  }
+
+  bool ImageCapture::GetImageFormat() {
+    memset(&fImageFormat, 0, sizeof(fImageFormat)); // reset memory
+    if (-1 == ioctl(fFd, VIDIOC_G_FMT, &fImageFormat)) {
+      if (errno != EINVAL) {
+        fError = string("Failed doing a VIDIOC_G_FMT for fetching the image format");
+        return false;
+      } else {
+        fError = string("Failed doing a VIDIOC_G_FMT for fetching the image format");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool ImageCapture::SetImageFormat() {
+    if (!fInitialized)
+      return false;
+
+    if (-1 == ioctl(fFd, VIDIOC_S_FMT, &fImageFormat)) {
+      fError = string("Failed doing a VIDIOC_S_FMT for setting the image format");
+      return false;
+    }
   }
 
   bool ImageCapture::ResetCrop() {
@@ -174,53 +198,15 @@ namespace FindLaser {
     return true;
   }
 
-  bool ImageCapture::SetWindow() {
-    if (ioctl(fFd, VIDIOCSWIN, &fWindow) < 0) {
-      fError = "Could not set device window struct via VIDIOCSWIN.";
-      return false;
-    }
-    return true;
-  }
-
-  bool ImageCapture::SetVideoPicture() {
-    if (fVerbosity)
-      cout << "Setting video picture..." << endl;
-
-    if (ioctl(fFd, VIDIOCSPICT, &fVPicture) < 0) {
-      fError = "Could not set video picture struct via VIDIOCSPICT.";
-      return false;
-    }
-    if (fBuffer != NULL) {
-      free(fBuffer);
-      fBuffer = NULL;
-    }
-    fBuffer = (unsigned char*) malloc(fWindow.width * fWindow.height * 24/8);
-    if (fBuffer == NULL) {
-      fError = "Could not allocate memory for image buffer: Out of memory!";
-      return false;
-    }
-
-    if (fVerbosity)
-      cout << "Successfully set video picture." << endl;
-
-    return true;
-  }
-
   bool ImageCapture::SetImageSize(const unsigned int width, const unsigned int height) {
     if (!fInitialized) return false;
 
-    if ( width > fVCapability.maxwidth || height > fVCapability.maxheight ) {
-      fError = "width or height exceed maximum device capability";
-      return false;
-    }
-    else if ( width < fVCapability.minwidth || height < fVCapability.minheight ) {
-      fError = "width or height below minimumdevice capability";
-      return false;
-    }
+    // no checking of max width and height because that's not supported by v4l2.
+    // Instead, we could use V4L2_TRY_FMT to TRY the desired setup first. Laziness prevails.
 
-    fWindow.width  = width;
-    fWindow.height = height;
-    return SetWindow();
+    fImageFormat.pix.width  = width;
+    fImageFormat.pix.height = height;
+    return SetImageFormat();
   }
 
    string ImageCapture::GetError() {
@@ -235,11 +221,13 @@ namespace FindLaser {
     do {
       int newbright;
       CaptureImagePointer(size); // writes to fBuffer
-      f = GetBrightnessAdjustment(fBuffer, fWindow.width * fWindow.height, &newbright);
+      f = GetBrightnessAdjustment(fBuffer, fImageFormat.pix.width * fImageFormat.pix.height, &newbright);
       if (f) {
-        fVPicture.brightness += (newbright << 8);
-        if (!SetVideoPicture()) return false;
-        cerr << fVPicture.brightness << endl;
+        // FIXME: a) check correctness, b) lose ugly constants
+        const float relBrightness = (GetRelBrightness()*65536. + (newbright << 8))/65536.;
+        if (!SetRelBrightness(relBrightness))
+          return false;
+        //cerr << fVPicture.brightness << endl;
       }
     } while (f);
 
