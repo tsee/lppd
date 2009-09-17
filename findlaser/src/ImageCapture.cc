@@ -44,10 +44,11 @@ namespace FindLaser {
     if (!GetWindow()) return false;
     if (!GetVideoPicture()) return false;
     
-    if (fVCapability.type & VID_TYPE_MONOCHROME) {
+    // FIXME replace with v4l2 equivalent or delete?
+    /*if (fVCapability.type & VID_TYPE_MONOCHROME) {
       fError = "Seems to be a monochrome camera. We don't support those at the moment.";
       return false;
-    }
+    }*/
 
     fVPicture.depth=24;
     fVPicture.palette=VIDEO_PALETTE_RGB24;
@@ -83,12 +84,13 @@ namespace FindLaser {
   bool ImageCapture::CheckAndResetControls() {
     // Adapted from v4l2 reference, example 1-9 (Chapter 1-8)
     struct v4l2_queryctrl queryctrl;
+    struct v4l2_control control;
 
     memset(&queryctrl, 0, sizeof(queryctrl));
-    memset(&fVControl, 0, sizeof(fVControl));
+    memset(&control, 0, sizeof(control));
 
     const unsigned int nControls = 2;
-    U32 controlIds[nControls] = {
+    __u32 controlIds[nControls] = {
       V4L2_CID_BRIGHTNESS, V4L2_CID_CONTRAST
     };
     // FIXME: These are certainly provided by v4l2
@@ -98,10 +100,10 @@ namespace FindLaser {
     };
 
     for (unsigned int iControl = 0; iControl < nControls; ++i) {
-      U32 controlId = controlIds[iControl];
+      __u32 controlId = controlIds[iControl];
       queryctrl.id = controlId;
 
-      if (-1 == ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) {
+      if (-1 == ioctl(fFd, VIDIOC_QUERYCTRL, &queryctrl)) {
         if (errno != EINVAL) {
           fError = string("Failed doing a VIDIOC_QUERYCTRL for control ") + string(controlNames[iControl]);
           return false;
@@ -113,10 +115,10 @@ namespace FindLaser {
         fError = string("control '") + string(controlNames[iControl]) + string("' is not supported");
         return false;
       } else {
-        fVControl.id = controlId;
-        fVControl.value = queryctrl.default_value;
+        control.id = controlId;
+        control.value = queryctrl.default_value;
 
-        if (-1 == ioctl(fd, VIDIOC_S_CTRL, &fVControl)) {
+        if (-1 == ioctl(fFd, VIDIOC_S_CTRL, &control)) {
           fError = string("Error setting control '") + string(controlNames[iControl]) + string("' to default value");
           return false;
         }
@@ -134,7 +136,7 @@ namespace FindLaser {
     memset(&cropcap, 0, sizeof(cropcap));
     cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (-1 == ioctl(fd, VIDIOC_CROPCAP, &cropcap)) {
+    if (-1 == ioctl(fFd, VIDIOC_CROPCAP, &cropcap)) {
       fError = "VIDIOC_CROPCAP failed";
       return false;
     }
@@ -144,7 +146,7 @@ namespace FindLaser {
     crop.c = cropcap.defrect; 
 
     /* Ignore if cropping is not supported (EINVAL). */
-    if (-1 == ioctl(fd, VIDIOC_S_CROP, &crop)
+    if (-1 == ioctl(fFd, VIDIOC_S_CROP, &crop)
         && errno != EINVAL)
     {
       fError = "VIDIOC_S_CROP failed";
@@ -222,29 +224,26 @@ namespace FindLaser {
     return fError;
   }
 
-   bool ImageCapture::SetBrightness(unsigned int brightness) {
-    fVPicture.brightness = brightness;
-    return SetVideoPicture();
+  bool ImageCapture::SetBrightness(unsigned int brightness) {
+    return SetControl(V4L2_CID_BRIGHTNESS, (__s32) brightness);
   }
 
-   bool ImageCapture::SetContrast(unsigned int contrast) {
-    fVPicture.contrast = contrast;
-    return SetVideoPicture();
+  bool ImageCapture::SetContrast(unsigned int contrast) {
+    return SetControl(V4L2_CID_CONTRAST, (__s32) contrast);
   }
-
 
   unsigned int ImageCapture::GetBrightness() {
-    return fVPicture.brightness;
+    return (unsigned int) GetControl(V4L2_CID_BRIGHTNESS);
   }
 
   unsigned int ImageCapture::GetContrast() {
-    return fVPicture.contrast;
+    return (unsigned int) GetControl(V4L2_CID_CONTRAST);
   }
 
   bool ImageCapture::SetCaptureProperties(unsigned int brightness, unsigned int contrast) {
-    fVPicture.brightness = brightness;
-    fVPicture.contrast = contrast;
-    return SetVideoPicture();
+    bool success = SetBrightness(brightness);
+    success = SetContrast(contrast) && success;
+    return success;
   }
 
   bool ImageCapture::AdjustBrightness() {
@@ -283,6 +282,34 @@ namespace FindLaser {
     read(fFd, fBuffer, size);
 
     return fBuffer;
+  }
+  
+  bool ImageCapture::SetControl(__u32 id, __s32 value) {
+    v4l2_control control;
+    control.id = id;
+    control.value = value;
+
+    if (-1 == ioctl(fFd, VIDIOC_S_CTRL, &control)) {
+      ostringstream o;
+      o << "Error setting control with id '" << id << " to value " << value;
+      fError = o.str();
+      return false;
+    }
+    return true;
+  }
+
+  __s32 ImageCapture::GetControl(__u32 id) {
+    v4l2_control control;
+    control.id = id;
+    control.value = 0;
+
+    if (-1 == ioctl(fFd, VIDIOC_G_CTRL, &control)) {
+      ostringstream o;
+      o << "Error Getting control with id '" << id;
+      fError = o.str();
+      return -1;
+    }
+    return control.value;
   }
 
 } // end namespace findlaser

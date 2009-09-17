@@ -34,12 +34,15 @@ namespace FindLaser {
 
       bool GetCapability(); /// fetch the v4l2 device capabilities as fCapability
       bool ResetCrop(); /// Reset the v4l2 crop settings of the device since they're persistent
-      bool heckAndResetControls(); /// Checks the availability of the required controls and sets them to their default value
+      bool CheckAndResetControls(); /// Checks the availability of the required controls and sets them to their default value
       bool GetWindow();
       bool SetWindow();
       bool GetVideoPicture();
       bool SetVideoPicture();
       int GetBrightnessAdjustment(unsigned char* image, long size, int* brightness);
+
+      bool SetControl(__u32 id, __s32 value); /// Set a control value (brightness, contrast...)
+      __s32 GetControl(__u32 id); /// Get a control value (brightness, contrast...)
 
       unsigned int fVerbosity;
       std::string fDevice; /// The path to the device, i.e. /dev/video
@@ -47,9 +50,8 @@ namespace FindLaser {
       bool fInitialized;
       int fFd; /// The device file descriptor
       struct v4l2_capability fVCapability;
-      struct v4l2_control fVControl; /// For setting controls such as brightness and contrast. Initialized in CheckAndResetControls.
-      struct video_window fWindow;
-      struct video_picture fVPicture;
+      //struct video_window fWindow;
+      //struct video_picture fVPicture;
       
       unsigned char* fBuffer;
   };
