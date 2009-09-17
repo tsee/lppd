@@ -38,8 +38,9 @@ all: $(OBJECTS) bin test $(BIN_DIR)/motion
 $(OBJ_DIR)/%.o: $(SOURCES)
 	$(CXX) -o $@ -c $(SRC_DIR)/$*.cc $(CXXFLAGS)
 
-$(OBJ_DIR):
-	mkdir $(OBJ_DIR)
+dirs:
+	mkdir -p $(OBJ_DIR)
+	mkdir -p $(BIN_DIR)
 
 nonbin: $(OBJECTS)
 
@@ -48,19 +49,19 @@ bin: nonbin $(EXE)
 test: nonbin $(TESTEXE)
 
 # EXECUTABLES
-$(BIN_DIR)/sdl: nonbin
+$(BIN_DIR)/sdl: dirs nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(GUI_OBJECTS) $(OBJ_DIR)/sdl.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
 
-$(BIN_DIR)/geoCalib: nonbin
+$(BIN_DIR)/geoCalib: dirs nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(GUI_OBJECTS) $(OBJ_DIR)/geoCalib.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
 
-$(BIN_DIR)/findLaser: nonbin
+$(BIN_DIR)/findLaser: dirs nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/findLaser.o -o $@ $(LDFLAGS)
 
-$(BIN_DIR)/findLaserCapture: nonbin
+$(BIN_DIR)/findLaserCapture: dirs nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(OBJ_DIR)/findLaserCapture.o -o $@ $(LDFLAGS)
 
-$(BIN_DIR)/motion: nonbin
+$(BIN_DIR)/motion: dirs nonbin
 	$(CXX) $(CXXFLAGS) $(IMAGE_OBJECTS) $(COMMON_OBJECTS) $(GUI_OBJECTS) $(OBJ_DIR)/motion.o -o $@ $(LDFLAGS) $(SDL_LDFLAGS)
 
 # TESTS
@@ -76,5 +77,5 @@ clean:
 realclean:
 	@rm -f $(OBJECTS) *~ core *.o *.so $(OBJ_DIR)/*.o $(BIN_DIR)/* $(TESTEXE)
 
-.PHONY: all clean nonbin bin realclean test default
+.PHONY: all clean nonbin bin realclean test default dirs
 
