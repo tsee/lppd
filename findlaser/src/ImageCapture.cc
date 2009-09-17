@@ -17,9 +17,6 @@ using std::endl;
 #include <sys/ioctl.h>
 #include <stdlib.h>
 
-#include <linux/types.h>
-#include <linux/videodev.h>
-
 namespace FindLaser {
   ImageCapture::ImageCapture(string device)
     : fDevice(device), fError(""), fInitialized(false), fFd(-1), fBuffer(NULL), fVerbosity(0)
@@ -70,7 +67,7 @@ namespace FindLaser {
    bool ImageCapture::GetCapability() {
     if (ioctl(fFd, VIDIOCGCAP, &fCapability) < 0) {
       fError = string("Could not get device capability struct via VIDIOGCAP. Is")
-               + fDevice + string(" not a video4linux device?");
+               + fDevice + string(" not a V4L2 device?");
       return false;
     }
     return true;
