@@ -2,3 +2,6 @@
 *.swo
 *~
 obj
+tests/testGeoTrans
+tests/testHistory
+bin
