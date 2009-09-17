@@ -44,13 +44,14 @@ namespace FindLaser {
     if (!GetWindow()) return false;
     if (!GetVideoPicture()) return false;
     
-    if (fCapability.type & VID_TYPE_MONOCHROME) {
+    if (fVCapability.type & VID_TYPE_MONOCHROME) {
       fError = "Seems to be a monochrome camera. We don't support those at the moment.";
       return false;
     }
 
     fVPicture.depth=24;
     fVPicture.palette=VIDEO_PALETTE_RGB24;
+    // V4L2_PIX_FMT_RGB24
 
     if (!SetVideoPicture()) {
       std::ostringstream o;
@@ -66,16 +67,62 @@ namespace FindLaser {
   }
 
   bool ImageCapture::GetCapability() {
-    if (ioctl(fFd, VIDIOC_QUERYCAP, &fCapability) != 0) {
+    if (ioctl(fFd, VIDIOC_QUERYCAP, &fVCapability) != 0) {
       fError = string("Could not get device capability struct via VIDIOGCAP. Is")
                + fDevice + string(" not a V4L2 device?");
       return false;
     }
-    if (!fCapability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
+    if (!fVCapability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
       fError = "Device doesn't seem to support video capture.";
       return false;
     }
     // TODO for future: Potentially use streaming. Hint: V4L2_CAP_STREAMING
+    return true;
+  }
+
+  bool ImageCapture::CheckAndResetControls() {
+    // Adapted from v4l2 reference, example 1-9 (Chapter 1-8)
+    struct v4l2_queryctrl queryctrl;
+
+    memset(&queryctrl, 0, sizeof(queryctrl));
+    memset(&fVControl, 0, sizeof(fVControl));
+
+    const unsigned int nControls = 2;
+    U32 controlIds[nControls] = {
+      V4L2_CID_BRIGHTNESS, V4L2_CID_CONTRAST
+    };
+    // FIXME: These are certainly provided by v4l2
+    char* controlNames[nControls] = {
+      "brightness",
+      "contrast"
+    };
+
+    for (unsigned int iControl = 0; iControl < nControls; ++i) {
+      U32 controlId = controlIds[iControl];
+      queryctrl.id = controlId;
+
+      if (-1 == ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) {
+        if (errno != EINVAL) {
+          fError = string("Failed doing a VIDIOC_QUERYCTRL for control ") + string(controlNames[iControl]);
+          return false;
+        } else {
+          fError = string("control '") + string(controlNames[iControl]) + string("' is not supported");
+          return false;
+        }
+      } else if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
+        fError = string("control '") + string(controlNames[iControl]) + string("' is not supported");
+        return false;
+      } else {
+        fVControl.id = controlId;
+        fVControl.value = queryctrl.default_value;
+
+        if (-1 == ioctl(fd, VIDIOC_S_CTRL, &fVControl)) {
+          fError = string("Error setting control '") + string(controlNames[iControl]) + string("' to default value");
+          return false;
+        }
+      }
+    }
+
     return true;
   }
 
@@ -157,11 +204,11 @@ namespace FindLaser {
   bool ImageCapture::SetImageSize(unsigned int width, unsigned int height) {
     if (!fInitialized) return false;
 
-    if ( width > fCapability.maxwidth || height > fCapability.maxheight ) {
+    if ( width > fVCapability.maxwidth || height > fVCapability.maxheight ) {
       fError = "width or height exceed maximum device capability";
       return false;
     }
-    else if ( width < fCapability.minwidth || height < fCapability.minheight ) {
+    else if ( width < fVCapability.minwidth || height < fVCapability.minheight ) {
       fError = "width or height below minimumdevice capability";
       return false;
     }
