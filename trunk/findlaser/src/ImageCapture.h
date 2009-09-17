@@ -7,6 +7,7 @@
 
 
 namespace FindLaser {
+  // TODO investigate setting whiteness (V4L2_CID_WHITENESS) and colour (V4L2_CID_SATURATION) as well
   class ImageCapture {
     public:
       ImageCapture(std::string device);
