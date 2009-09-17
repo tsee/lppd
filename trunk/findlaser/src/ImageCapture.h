@@ -32,7 +32,8 @@ namespace FindLaser {
 
     private:
 
-      bool GetCapability();
+      bool GetCapability(); /// fetch the v4l2 device capabilities as fCapability
+      bool ResetCrop(); /// Reset the v4l2 crop settings of the device since they're persistent
       bool GetWindow();
       bool SetWindow();
       bool GetVideoPicture();
