@@ -206,7 +206,7 @@ namespace FindLaser {
     return true;
   }
 
-  bool ImageCapture::SetImageSize(unsigned int width, unsigned int height) {
+  bool ImageCapture::SetImageSize(const unsigned int width, const unsigned int height) {
     if (!fInitialized) return false;
 
     if ( width > fVCapability.maxwidth || height > fVCapability.maxheight ) {
