@@ -50,9 +50,11 @@ namespace FindLaser {
       std::string fError; /// The current error string
       bool fInitialized;
       int fFd; /// The device file descriptor
-      struct v4l2_capability fVCapability;
-      struct v4l2_queryctrl fBrightnessQuery;
-      struct v4l2_queryctrl fContrastQuery;
+      struct v4l2_capability fVCapability; /// Describes the capability of the video hardware (done during initialization)
+      struct v4l2_queryctrl fBrightnessQuery; /// The general query about the brightness control containing min/max (done during initialization)
+      struct v4l2_queryctrl fContrastQuery; /// The general query about the contrast control containing min/max (done during initialization)
+      struct v4l2_pix_format fPixFormat; /// The general query about the contrast control containing min/max (done during initialization)
+
       //struct video_window fWindow;
       //struct video_picture fVPicture;
       
