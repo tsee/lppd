@@ -1,12 +1,16 @@
 #include "ImageCapture.h"
 
+#include <vector>
 #include <string>
 #include <iostream>
 #include <sstream>
+
 #include <cstdlib>
 #include <cstring>
+#include <cerrno>
 
 using std::string;
+using std::vector;
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -84,13 +88,12 @@ namespace FindLaser {
       "brightness",
       "contrast"
     };
-    struct v4l2_queryctrl queryctrls[nControls] = {
-      &fBrightnessQuery,
-      &fContrastQuery
-    };
+    vector<struct v4l2_queryctrl*> queryctrls;
+    queryctrls.push_back(&fBrightnessQuery);
+    queryctrls.push_back(&fContrastQuery);
 
     for (unsigned int iControl = 0; iControl < nControls; ++iControl) {
-      struct v4l2_queryctrl& queryctrl = queryctrls[iControl];
+      struct v4l2_queryctrl& queryctrl = *queryctrls[iControl];
       memset(&queryctrl, 0, sizeof(queryctrl));
       __u32 controlId = controlIds[iControl];
       queryctrl.id = controlId;
