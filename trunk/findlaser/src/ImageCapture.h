@@ -2,7 +2,9 @@
 #define __FindLaser__ImageCapture_h
 
 #include <string>
-#include <linux/videodev.h>
+
+#include <linux/videodev2.h>
+
 
 namespace FindLaser {
   class ImageCapture {
