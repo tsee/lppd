@@ -64,8 +64,8 @@ namespace FindLaser {
     return true;
   }
 
-   bool ImageCapture::GetCapability() {
-    if (ioctl(fFd, VIDIOCGCAP, &fCapability) < 0) {
+  bool ImageCapture::GetCapability() {
+    if (ioctl(fFd, VIDIOC_QUERYCAP, &fCapability) != 0) {
       fError = string("Could not get device capability struct via VIDIOGCAP. Is")
                + fDevice + string(" not a V4L2 device?");
       return false;
@@ -73,7 +73,7 @@ namespace FindLaser {
     return true;
   }
 
-   bool ImageCapture::GetWindow() {
+  bool ImageCapture::GetWindow() {
     if (ioctl(fFd, VIDIOCGWIN, &fWindow) < 0) {
       fError = "Could not get device window struct via VIDIOCGWIN.";
       return false;
@@ -81,7 +81,7 @@ namespace FindLaser {
     return true;
   }
 
-   bool ImageCapture::GetVideoPicture() {
+  bool ImageCapture::GetVideoPicture() {
     if (ioctl(fFd, VIDIOCGPICT, &fVPicture) < 0) {
       fError = "Could not get video picture struct via VIDIOCGPICT.";
       return false;
@@ -89,7 +89,7 @@ namespace FindLaser {
     return true;
   }
 
-   bool ImageCapture::SetWindow() {
+  bool ImageCapture::SetWindow() {
     if (ioctl(fFd, VIDIOCSWIN, &fWindow) < 0) {
       fError = "Could not set device window struct via VIDIOCSWIN.";
       return false;
