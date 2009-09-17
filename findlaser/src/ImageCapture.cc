@@ -291,15 +291,15 @@ namespace FindLaser {
     return reduced / (float)(fBrightnessQuery.maximum - min);
   }
 
-  unsigned int ImageCapture::GetRelContrast() {
+  float ImageCapture::GetRelContrast() {
     __u32 min = fContrastQuery.minimum;
     float reduced = GetControl(V4L2_CID_CONTRAST)-min;
     return reduced / (float)(fContrastQuery.maximum - min);
   }
 
   bool ImageCapture::SetCaptureProperties(float relBrightness, float relContrast) {
-    bool success = SetBrightness(brightness);
-    success = SetContrast(contrast) && success;
+    bool success = SetRelBrightness(relBrightness);
+    success = SetRelContrast(relContrast) && success;
     return success;
   }
 
