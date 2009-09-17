@@ -185,22 +185,6 @@ namespace FindLaser {
     return true;
   }
 
-  bool ImageCapture::GetWindow() {
-    if (ioctl(fFd, VIDIOCGWIN, &fWindow) < 0) {
-      fError = "Could not get device window struct via VIDIOCGWIN.";
-      return false;
-    }
-    return true;
-  }
-
-  bool ImageCapture::GetVideoPicture() {
-    if (ioctl(fFd, VIDIOCGPICT, &fVPicture) < 0) {
-      fError = "Could not get video picture struct via VIDIOCGPICT.";
-      return false;
-    }
-    return true;
-  }
-
   bool ImageCapture::SetImageSize(const unsigned int width, const unsigned int height) {
     if (!fInitialized) return false;
 
