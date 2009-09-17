@@ -62,15 +62,12 @@ int main()
     return(1);
   }
 
-  // Camera settings
-  const int cameraBrightness = cfg.GetCameraBrightness();
-  const int cameraContrast = cfg.GetCameraContrast();
-
   // spot finding thresholds
   const double thresholdColor = cfg.GetColorThreshold();
   const double thresholdLight = cfg.GetBrightnessThreshold();
 
-  cap.SetCaptureProperties(cameraBrightness, cameraContrast);
+  // Camera calib settings
+  cap.SetCaptureProperties(cfg.GetCameraRelBrightness(), cfg.GetCameraRelContrast());
 
   // Color objects for color projection
   Color red(255,0,0);
