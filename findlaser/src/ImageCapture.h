@@ -19,7 +19,7 @@ namespace FindLaser {
 
       bool AdjustBrightness(); /// Auto-adjust brightness
 
-      bool SetImageSize(unsigned int width, unsigned int height);
+      bool SetImageSize(const unsigned int width, const unsigned int height);
 
       bool SetRelBrightness(float relBrightness); /// Set the desired brightness [0,1]
       bool SetRelContrast(float relContrast); /// Set the desired contrast [0,1]
