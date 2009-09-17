@@ -17,8 +17,7 @@ and the corresponding headers are required.
 
 - X-libs               --> for setting the mouse cursor position
 
-- The "linux/videodev.h" header (Video4Linux if I remember correctly,
-                                 part of the kernel here.)
+- The "linux/videodev.h" header (Video4Linux2)
 
 
 INSTALLATION
