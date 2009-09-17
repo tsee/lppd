@@ -55,11 +55,11 @@ namespace FindLaser {
 
     if (!fileHandle.good()) return false;
     fileHandle >> value;
-    SetCameraBrightness(atof(value.c_str()));
+    SetCameraRelBrightness(atof(value.c_str()));
 
     if (!fileHandle.good()) return false;
     fileHandle >> value;
-    SetCameraContrast(atof(value.c_str()));
+    SetCameraRelContrast(atof(value.c_str()));
 
     if (!fileHandle.good()) return false;
     fileHandle >> value;
