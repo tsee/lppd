@@ -40,6 +40,7 @@ namespace FindLaser {
 
       bool GetImageFormat(); /// Fetch the initial image format settings from the device (done during initialization)
       bool SetImageFormat(); /// Set the devices image format settings
+      void ReallocBuffer(); /// Re-allocate (or allocate) the buffer using the format's image size
 
       int GetBrightnessAdjustment(unsigned char* image, long size, int* brightness); /// helper for AdjustBrightness
 
