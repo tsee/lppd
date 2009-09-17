@@ -161,7 +161,7 @@ namespace FindLaser {
   void Configuration::SetCameraRelContrast(const float camRelCo) {
     if (camRelCo < 0.)
       fCameraContrast = 0.;
-    else if (camCo > 1.)
+    else if (camRelCo > 1.)
       fCameraContrast = 1.;
     else
       fCameraContrast = camRelCo;
