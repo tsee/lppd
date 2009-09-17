@@ -70,7 +70,12 @@ namespace FindLaser {
       fError = "Device doesn't seem to support video capture.";
       return false;
     }
+
     // TODO for future: Potentially use streaming. Hint: V4L2_CAP_STREAMING
+    if (!fVCapability.capabilities & V4L2_CAP_READWRITE) {
+      fError = "Device doesn't seem to support video reading.";
+      return false;
+    }
     return true;
   }
 
