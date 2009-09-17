@@ -20,12 +20,13 @@ namespace FindLaser {
       bool AdjustBrightness();
 
       bool SetImageSize(unsigned int width, unsigned int height);
-      bool SetBrightness(unsigned int brightness);
-      bool SetContrast(unsigned int contrast);
-      bool SetCaptureProperties(unsigned int brightness, unsigned int contrast);
 
-      unsigned int GetBrightness();
-      unsigned int GetContrast();
+      bool SetRelBrightness(float relBrightness); /// Set the desired brightness
+      bool SetRelContrast(float relContrast); /// Set the desired contrast
+      bool SetCaptureProperties(float relBrightness, float relContrast); /// Set brightness and contrast
+
+      float GetRelBrightness();
+      float GetRelContrast();
 
 
       unsigned char* CaptureImagePointer(unsigned int& size);
@@ -50,6 +51,8 @@ namespace FindLaser {
       bool fInitialized;
       int fFd; /// The device file descriptor
       struct v4l2_capability fVCapability;
+      struct v4l2_queryctrl fBrightnessQuery;
+      struct v4l2_queryctrl fContrastQuery;
       //struct video_window fWindow;
       //struct video_picture fVPicture;
       
